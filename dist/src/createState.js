@@ -1,5 +1,6 @@
-export var createState = function () {
-    var data = {};
+export var createState = function (payload) {
+    if (payload === void 0) { payload = {}; }
+    var data = payload;
     var watchers = [];
     var setState = function (payload) {
         var newValue = JSON.stringify(payload);

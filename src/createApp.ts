@@ -5,7 +5,7 @@ export const createApp = ({ onMount }: IConfigApp): IApp => {
   const bodyElement = document.body
   const customParams: GenericObjectType = {}
 
-  const mount = (context: HTMLElement): void => {
+  const mount = (context: Element): void => {
     onMount(bodyElement || context, customParams)
   }
 

@@ -1,7 +1,7 @@
-import { GenericObjectType, watcherStateType } from './types'
+import { GenericObjectType, watcherStateType, StateType } from './types'
 
-export const createState = () => {
-  const data: GenericObjectType = {}
+export const createState = (payload: GenericObjectType = {}): StateType => {
+  const data: GenericObjectType = payload
   const watchers: Array<(data: GenericObjectType) => void> = []
 
   const setState = (payload: GenericObjectType): void => {

@@ -1,4 +1,2 @@
-import { GenericObjectType } from './types';
-declare type factoryTye = () => GenericObjectType;
-export declare const render: (factory: factoryTye, context: HTMLElement, options: GenericObjectType) => void;
-export {};
+import { factoryType, CallbackRenderType } from './types';
+export declare const render: (factory: factoryType, context: Element, callback?: CallbackRenderType) => void;
