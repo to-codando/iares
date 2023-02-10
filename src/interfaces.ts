@@ -1,7 +1,7 @@
-import { GenericObject } from './types'
+import { GenericObjectType } from './types'
 
 export interface IConfigApp {
-  onMount: (context: HTMLElement, params?: GenericObject) => void
+  onMount: (context: HTMLElement, params?: GenericObjectType) => void
 }
 
 export interface IApp {
@@ -9,3 +9,10 @@ export interface IApp {
   mount: (context: HTMLElement) => void,
   unmount: (context: HTMLElement) => void,
 }
+
+export interface IHTM {
+  type: any;
+  props: any;
+  children: any;
+}
+

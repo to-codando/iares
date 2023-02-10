@@ -1,9 +1,9 @@
 import { IApp, IConfigApp } from './interfaces'
-import { GenericObject } from './types'
+import { GenericObjectType } from './types'
 
 export const createApp = ({ onMount }: IConfigApp): IApp => {
   const bodyElement = document.body
-  const customParams: GenericObject = {}
+  const customParams: GenericObjectType = {}
 
   const mount = (context: HTMLElement): void => {
     onMount(bodyElement || context, customParams)
@@ -13,7 +13,7 @@ export const createApp = ({ onMount }: IConfigApp): IApp => {
     bodyElement.innerHTML = ""
   }
 
-  const setup = (params: GenericObject): void => {
+  const setup = (params: GenericObjectType): void => {
     Object.assign(customParams, params)
   }
 

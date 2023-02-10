@@ -1,0 +1,25 @@
+import { GenericObjectType, watcherStateType } from './types'
+
+export const createState = () => {
+  const data: GenericObjectType = {}
+  const watchers: Array<(data: GenericObjectType) => void> = []
+
+  const setState = (payload: GenericObjectType): void => {
+    const newValue = JSON.stringify(payload)
+    const state = Object.assign(data, JSON.parse(newValue))
+    watchers.forEach(watcher => watcher(state))
+  }
+
+  const getState = (): GenericObjectType => {
+    const state = JSON.stringify(data)
+    return JSON.parse(state)
+  }
+
+  const watchState = (handler: watcherStateType): watcherStateType => {
+    const watcher = (payload: GenericObjectType) => handler(payload)
+    watchers.push(watcher)
+    return watcher
+  }
+
+  return { setState, getState, watchState }
+}
