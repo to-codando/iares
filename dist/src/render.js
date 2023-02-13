@@ -144,7 +144,11 @@ var _getHooks = function (_a) {
         return schema.hooks;
     return {};
 };
-var _createId = function () {
+var _createId = function (selector) {
+    var siblingElement = document.querySelector(selector);
+    var siblingId = siblingElement === null || siblingElement === void 0 ? void 0 : siblingElement.getAttribute("id");
+    if (siblingId)
+        return siblingId;
     return Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
         .substring(1);
@@ -175,9 +179,9 @@ var _createComponent = function (factory, params) {
     var schema = _getComponentSchema({ props: props, factory: factory });
     var actions = _getActions({ schema: schema, props: props });
     var hooks = _getHooks({ schema: schema, actions: actions });
-    var componentId = _createId();
     schema.selector = params.selector;
     schema.name = _createSelector(factory.name);
+    var componentId = _createId(schema.selector);
     (_a = schema.state) === null || _a === void 0 ? void 0 : _a.watchState(function () { return mount(); });
     var beforeMount = function () { var _a; return (_a = hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
     var afterMount = function () { var _a; return (_a = hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
@@ -192,6 +196,7 @@ var _createComponent = function (factory, params) {
         (_a = hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks);
         if (!templateElement)
             return;
+        componentElement.id = componentId;
         componentElement.insertAdjacentElement("beforeend", templateElement);
         _applyStyles({ schema: schema, actions: actions, props: props, id: componentId });
         (_b = hooks.afterRender) === null || _b === void 0 ? void 0 : _b.call(hooks);

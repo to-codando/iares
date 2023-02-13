@@ -177,7 +177,12 @@ const _getHooks = ({ schema, actions }: getHookParamsType): hooksType => {
   return {};
 };
 
-const _createId = () => {
+const _createId = (selector: string) => {
+  const siblingElement = document.querySelector(selector);
+  const siblingId = siblingElement?.getAttribute("id");
+
+  if (siblingId) return siblingId;
+
   return Math.floor((1 + Math.random()) * 0x10000)
     .toString(16)
     .substring(1);
@@ -208,11 +213,13 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
   const schema = _getComponentSchema({ props, factory });
   const actions: ActionsType = _getActions({ schema, props });
   const hooks = _getHooks({ schema, actions });
-  const componentId = _createId();
 
   schema.selector = params.selector;
   schema.name = _createSelector(factory.name);
+  const componentId = _createId(schema.selector);
+
   schema.state?.watchState(() => mount());
+
   const beforeMount = (): void => hooks.beforeMount?.();
   const afterMount = (): void => hooks.afterMount?.();
   const beforeRender = (): void => hooks.beforeRender?.();
@@ -226,6 +233,7 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
     hooks.beforeRender?.();
 
     if (!templateElement) return;
+    componentElement.id = componentId
     componentElement.insertAdjacentElement("beforeend", templateElement);
     _applyStyles({ schema, actions, props, id: componentId });
     hooks.afterRender?.();

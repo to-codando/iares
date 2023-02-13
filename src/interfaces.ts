@@ -5,7 +5,7 @@ export interface IConfigApp {
 }
 
 export interface IApp {
-  setup: (params: any) => void;
+  setup: (params: GenericObjectType) => void;
   mount: (context: Element) => void;
   unmount: (context: Element) => void;
 }
