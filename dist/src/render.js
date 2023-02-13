@@ -11,7 +11,7 @@ var __assign = (this && this.__assign) || function () {
 };
 var _createSelector = function (value) {
     var regex = /(?=[A-Z])/;
-    return value.split(regex).join('-').toLocaleLowerCase();
+    return value.split(regex).join("-").toLocaleLowerCase();
 };
 var _createElement = function (selector) {
     return document.createElement(selector);
@@ -32,19 +32,19 @@ var _setPropsElement = function (element, props) {
         if (!isEvent.test(key))
             element.setAttribute(key, props[key]);
         if (isEvent.test(key)) {
-            var eventName = key.replace(/on/, '').toLocaleLowerCase();
+            var eventName = key.replace(/on/, "").toLocaleLowerCase();
             element.addEventListener(eventName, props[key]);
         }
     }
 };
 var _setChildrenElement = function (element, children) {
     children.forEach(function (child) {
-        if (typeof child === 'string') {
+        if (typeof child === "string") {
             element.textContent = child;
             return;
         }
         var childElement = _createTemplateByObject(child);
-        childElement && element.insertAdjacentElement('beforeend', childElement);
+        childElement && element.insertAdjacentElement("beforeend", childElement);
     });
 };
 var _createTemplateByObject = function (schema) {
@@ -53,6 +53,8 @@ var _createTemplateByObject = function (schema) {
 var _createTemplateByArray = function (schema) {
     var templateElement = null;
     schema.forEach(function (elementMap) {
+        if (!elementMap.type)
+            return;
         var element = _createElement(elementMap.type);
         _setPropsElement(element, elementMap.props);
         _setChildrenElement(element, elementMap.children);
@@ -60,33 +62,127 @@ var _createTemplateByArray = function (schema) {
     });
     return templateElement;
 };
+var _clearElement = function (element) {
+    element.innerHTML = '';
+    var attributesToRemove = element.getAttributeNames();
+    attributesToRemove.forEach(function (attr) {
+        if (attr === 'data-component')
+            return;
+        element.removeAttribute(attr);
+    });
+    return element;
+};
 var _createTemplateElement = function (schema) {
     return Array.isArray(schema) ? _createTemplateByArray(schema) : _createTemplateByObject(schema);
 };
-var _createComponent = function (factory, params) {
-    var componentSchema = factory();
-    var mount = function () {
-        var _a;
-        var componentElement = params.element;
-        var state = ((_a = componentSchema === null || componentSchema === void 0 ? void 0 : componentSchema.state) === null || _a === void 0 ? void 0 : _a.getState()) || {};
-        var templateSchema = componentSchema.template({ state: state });
-        var templateElement = _createTemplateElement(templateSchema);
-        templateElement && componentElement.insertAdjacentElement('beforeend', templateElement);
-    };
-    var unmount = function () { };
-    var setup = function () { };
-    return __assign(__assign({}, componentSchema), { element: params.element, selector: params.selector, mount: mount, unmount: unmount, setup: setup });
+var _getActions = function (_a) {
+    var schema = _a.schema, props = _a.props;
+    var stateParams = _getStateUtils(schema);
+    if ((schema === null || schema === void 0 ? void 0 : schema.actions) && typeof (schema === null || schema === void 0 ? void 0 : schema.actions) === "function") {
+        return schema.actions(__assign(__assign({}, stateParams), { props: props }));
+    }
+    return (schema === null || schema === void 0 ? void 0 : schema.actions) || {};
 };
-export var render = function (factory, context, callback) {
+var _getStateUtils = function (schema) {
+    var setState = (schema === null || schema === void 0 ? void 0 : schema.state) ? schema.state.setState : function () { return ({}); };
+    var getState = (schema === null || schema === void 0 ? void 0 : schema.state) ? schema.state.getState : function () { return ({}); };
+    var state = getState();
+    return { state: state, setState: setState, getState: getState };
+};
+var _getProps = function (factory) {
+    var schema = factory({ props: null });
+    var state = _getStateUtils(schema).state;
+    var actions = _getActions({ schema: schema, props: null });
+    var template = _getTemplate({ schema: schema, state: state, actions: actions });
+    var props = {};
+    template.children.forEach(function (child) {
+        var _a;
+        if ((_a = child.props) === null || _a === void 0 ? void 0 : _a.hasOwnProperty("data-component")) {
+            var component = child.props["data-component"];
+            props[component] = {};
+            for (var key in child.props) {
+                props[component][key] = child.props[key];
+            }
+        }
+    });
+    return __assign({}, props);
+};
+var _getTemplate = function (_a) {
+    var schema = _a.schema, state = _a.state, actions = _a.actions;
+    return schema.template({ state: state, actions: actions });
+};
+var _isPropertyTarget = function (props, factory) {
+    if (!props)
+        return false;
+    var componentName = _createSelector(factory.name);
+    var scopePropName = Object.keys(props).shift();
+    return componentName === scopePropName;
+};
+var _getComponentSchema = function (_a) {
+    var props = _a.props, factory = _a.factory;
+    var componentName = _createSelector(factory.name);
+    var schema = factory({ props: {} });
+    if (!(props && _isPropertyTarget(props, factory)))
+        return schema;
+    return factory({ props: props[componentName] });
+};
+var _getHooks = function (_a) {
+    var schema = _a.schema, actions = _a.actions;
+    if (!schema.hooks)
+        return {};
+    if (typeof schema.hooks === "function")
+        return schema.hooks(actions);
+    if (typeof schema.hooks === "object")
+        return schema.hooks;
+    return {};
+};
+var _createComponent = function (factory, params) {
+    var _a;
+    var props = params.props || _getProps(factory);
+    var schema = _getComponentSchema({ props: props, factory: factory });
+    var actions = _getActions({ schema: schema, props: props });
+    var hooks = _getHooks({ schema: schema, actions: actions });
+    (_a = schema.state) === null || _a === void 0 ? void 0 : _a.watchState(function () { return mount(); });
+    var beforeMount = function () { var _a; return (_a = hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
+    var afterMount = function () { var _a; return (_a = hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
+    var beforeRender = function () { var _a; return (_a = hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks); };
+    var afterRender = function () { var _a; return (_a = hooks.afterRender) === null || _a === void 0 ? void 0 : _a.call(hooks); };
+    var mount = function () {
+        var _a, _b;
+        var state = _getStateUtils(schema).state;
+        var templateSchema = _getTemplate({ schema: schema, state: state, actions: actions });
+        var componentElement = _clearElement(params.element);
+        var templateElement = _createTemplateElement(templateSchema);
+        (_a = hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks);
+        if (!templateElement)
+            return;
+        componentElement.insertAdjacentElement("beforeend", templateElement);
+        (_b = hooks.afterRender) === null || _b === void 0 ? void 0 : _b.call(hooks);
+    };
+    var unmount = function () {
+        var _a;
+        (_a = hooks.unmount) === null || _a === void 0 ? void 0 : _a.call(hooks);
+    };
+    var setup = function () { };
+    return __assign(__assign({}, schema), { element: params.element, selector: params.selector, beforeMount: beforeMount, afterMount: afterMount, beforeRender: beforeRender, afterRender: afterRender, mount: mount, unmount: unmount, setup: setup, props: props });
+};
+export var render = function (factory, params, callback) {
     var componentSelector = _getComponentSelector(factory.name);
-    var componentElementRefs = _getComponentElementRefs(componentSelector, context);
+    var componentElementRefs = _getComponentElementRefs(componentSelector, params.element);
     componentElementRefs.forEach(function (componentElement) {
         var component = _createComponent(factory, {
             selector: componentSelector,
-            element: componentElement
+            element: componentElement,
+            props: params.props,
         });
+        component.beforeMount();
         component.mount();
-        callback && callback(component.element);
+        component.afterMount();
+        var callbackParams = {
+            element: component.element,
+            props: component.props || null,
+        };
+        callback === null || callback === void 0 ? void 0 : callback(callbackParams);
     });
 };
 //# sourceMappingURL=render.js.map

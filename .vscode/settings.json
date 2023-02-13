@@ -1,0 +1,8 @@
+{
+	"editor.codeActionsOnSave":{
+		"source.organizeImports.rome": true,
+         "editor.formatOnSave":true,
+         "source.fixAll": true,
+         "source.formatOnSave":true
+	}
+}

@@ -1,13 +1,13 @@
-import { GenericObjectType, watcherStateType } from './types'
+import { GenericObjectType, watcherStateType } from "./types";
 
 export interface IConfigApp {
-  onMount: (context: Element, params?: GenericObjectType) => void
+  onMount: (context: Element, params?: GenericObjectType) => void;
 }
 
 export interface IApp {
-  setup: (params: any) => void,
-  mount: (context: Element) => void,
-  unmount: (context: Element) => void,
+  setup: (params: any) => void;
+  mount: (context: Element) => void;
+  unmount: (context: Element) => void;
 }
 export interface IHTM {
   type: any;
@@ -16,20 +16,25 @@ export interface IHTM {
 }
 
 export interface ICreateComponentParams {
-  element: Element,
-  selector: string
+  element: Element;
+  selector: string;
+  props: GenericObjectType | null;
 }
 
 export interface IComponent {
-  setup: (params: any) => void
-  mount: () => void
-  unmount: () => void
-  element: Element
-  selector: string
-  template: (params: GenericObjectType) => GenericObjectType
-  actions?: (params: GenericObjectType) => GenericObjectType
-  styles?: (params: GenericObjectType) => string
-  hooks?: (params: any) => void
-  state?: GenericObjectType
+  setup: (params: GenericObjectType) => void;
+  mount: () => void;
+  unmount: () => void;
+  beforeMount: () => void;
+  afterMount: () => void;
+  beforeRender: () => void;
+  afterRender: () => void;
+  element: Element;
+  selector: string;
+  template: (params: GenericObjectType) => GenericObjectType;
+  actions?: (params: GenericObjectType) => GenericObjectType;
+  styles?: (params: GenericObjectType) => string;
+  hooks?: (params: any) => void;
+  state?: GenericObjectType;
+  props?: GenericObjectType | null;
 }
-
