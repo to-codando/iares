@@ -1,5 +1,5 @@
-import htm from 'htm'
 import { IHTM } from './interfaces'
+import htm from 'htm'
 
 const css = (tags: any[], ...values: any[]): string => {
   return tags

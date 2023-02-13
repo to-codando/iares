@@ -11,6 +11,7 @@ import {
   StatePropsType,
   TemplateElementType,
   TemplateSchemaType,
+  applyStylesParamsType,
   contextCallbackType,
   factoryType,
   getHookParamsType,
@@ -38,45 +39,57 @@ const _getComponentElementRefs = (selector: string, context: Element): Array<Ele
   return Array.from(componentElementRefs);
 };
 
-const _setPropsElement = (element: Element, props: PropType): void => {
+const _setPropsElement = (element: Element, props: PropType, id: string): void => {
   if (!props) return;
   const isEvent = /^on/;
+  const isClass = /class/;
 
   for (let key in props) {
-    if (!isEvent.test(key)) element.setAttribute(key, props[key]);
+    if (!(isClass.test(key) && isEvent.test(key))) {
+      element.setAttribute(key, props[key]);
+    }
 
     if (isEvent.test(key)) {
       const eventName = key.replace(/on/, "").toLocaleLowerCase();
       element.addEventListener(eventName, props[key]);
     }
+
+    if (isClass.test(key)) {
+      const scopedCss = `${props[key]}_${id}`;
+      element.setAttribute(key, scopedCss);
+    }
   }
 };
 
-const _setChildrenElement = (element: Element, children: HTMType[] | GenericObjectType[]): void => {
+const _setChildrenElement = (
+  element: Element,
+  children: HTMType[] | GenericObjectType[],
+  id: string,
+): void => {
   children.forEach((child) => {
     if (typeof child === "string") {
       element.textContent = child;
       return;
     }
 
-    const childElement = _createTemplateByObject(child as HTMType);
+    const childElement = _createTemplateByObject(child as HTMType, id);
     childElement && element.insertAdjacentElement("beforeend", childElement);
   });
 };
 
-const _createTemplateByObject = (schema: HTMType): TemplateElementType => {
-  return _createTemplateByArray([schema]);
+const _createTemplateByObject = (schema: HTMType, id: string): TemplateElementType => {
+  return _createTemplateByArray([schema], id);
 };
 
-const _createTemplateByArray = (schema: GenericObjectType): TemplateElementType => {
+const _createTemplateByArray = (schema: GenericObjectType, id: string): TemplateElementType => {
   let templateElement: TemplateElementType = null;
 
   schema.forEach((elementMap: HTMType): void => {
     if (!elementMap.type) return;
 
     const element = _createElement(elementMap.type);
-    _setPropsElement(element, elementMap.props);
-    _setChildrenElement(element, elementMap.children);
+    _setPropsElement(element, elementMap.props, id);
+    _setChildrenElement(element, elementMap.children, id);
     templateElement = element;
   });
 
@@ -84,20 +97,22 @@ const _createTemplateByArray = (schema: GenericObjectType): TemplateElementType 
 };
 
 const _clearElement = (element: HTMLElement): Element => {
-  element.innerHTML = ''
-  
+  element.innerHTML = "";
+
   const attributesToRemove = element.getAttributeNames();
 
-  attributesToRemove.forEach( attr => {
-    if(attr === 'data-component') return
+  attributesToRemove.forEach((attr) => {
+    if (attr === "data-component") return;
     element.removeAttribute(attr);
-  })
+  });
 
   return element;
 };
 
-const _createTemplateElement = (schema: HTMType): TemplateElementType => {
-  return Array.isArray(schema) ? _createTemplateByArray(schema) : _createTemplateByObject(schema);
+const _createTemplateElement = (schema: HTMType, id: string): TemplateElementType => {
+  return Array.isArray(schema)
+    ? _createTemplateByArray(schema, id)
+    : _createTemplateByObject(schema, id);
 };
 
 const _getActions = ({ schema, props }: ActionParamsType): GenericObjectType => {
@@ -159,7 +174,33 @@ const _getHooks = ({ schema, actions }: getHookParamsType): hooksType => {
   if (!schema.hooks) return {};
   if (typeof schema.hooks === "function") return schema.hooks(actions);
   if (typeof schema.hooks === "object") return schema.hooks;
-  return {}
+  return {};
+};
+
+const _createId = () => {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+};
+
+const _hasStyles = (selector: string): boolean => !!document.head.querySelector(`style#${selector}`);
+
+const _applyStyles = ({ schema, actions, props, id }: applyStylesParamsType): void => {
+  if (!schema.hasOwnProperty("styles")) return;
+  const regex = /\.\w+/gi;
+  const styles = schema?.styles?.({ actions, props }) || "";
+  const css = styles.replace(regex, (str) => {
+    return `${str}_${id}`;
+  });
+
+  if (_hasStyles(schema.name)) return;
+
+  const head = document.querySelector("head");
+  const styleElement = _createElement("style");
+  styleElement.setAttribute("id", schema.name);
+  styleElement.setAttribute("type", "text/css");
+  styleElement.innerHTML = css.trim();
+  head?.insertAdjacentElement("beforeend", styleElement);
 };
 
 const _createComponent = (factory: ComponentFactoryType, params: ICreateComponentParams): IComponent => {
@@ -167,29 +208,31 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
   const schema = _getComponentSchema({ props, factory });
   const actions: ActionsType = _getActions({ schema, props });
   const hooks = _getHooks({ schema, actions });
+  const componentId = _createId();
 
-
+  schema.selector = params.selector;
+  schema.name = _createSelector(factory.name);
   schema.state?.watchState(() => mount());
+  const beforeMount = (): void => hooks.beforeMount?.();
+  const afterMount = (): void => hooks.afterMount?.();
+  const beforeRender = (): void => hooks.beforeRender?.();
+  const afterRender = (): void => hooks.afterRender?.();
 
-  const beforeMount = (): void => hooks.beforeMount?.(); 
-  const afterMount = (): void => hooks.afterMount?.(); 
-  const beforeRender = (): void => hooks.beforeRender?.(); 
-  const afterRender = (): void => hooks.afterRender?.(); 
-  
   const mount = (): void => {
     const { state } = _getStateUtils(schema);
     const templateSchema = _getTemplate({ schema, state, actions });
     const componentElement = _clearElement(params.element as HTMLElement);
-    const templateElement = _createTemplateElement(templateSchema);
-    hooks.beforeRender?.(); 
+    const templateElement = _createTemplateElement(templateSchema, componentId);
+    hooks.beforeRender?.();
 
     if (!templateElement) return;
     componentElement.insertAdjacentElement("beforeend", templateElement);
-    hooks.afterRender?.(); 
+    _applyStyles({ schema, actions, props, id: componentId });
+    hooks.afterRender?.();
   };
 
   const unmount = () => {
-    hooks.unmount?.(); 
+    hooks.unmount?.();
   };
 
   const setup = () => {};
@@ -224,7 +267,7 @@ export const render = (
       props: params.props,
     });
 
-    component.beforeMount()
+    component.beforeMount();
     component.mount();
     component.afterMount();
 

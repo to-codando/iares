@@ -42,6 +42,8 @@ export type GenericComponentType = {
   styles?: (params: GenericObjectType) => string;
   hooks?: (params: ActionsType) => hooksType;
   state?: StateType;
+  selector: string;
+  name: string;
 };
 
 export type ComponentSchemaProps = {
@@ -80,4 +82,11 @@ export type TemplateSchemaType = {
 export type getHookParamsType = {
   actions: ActionsType;
   schema: GenericComponentType;
+};
+
+export type applyStylesParamsType = {
+  actions: ActionsType;
+  props: GenericObjectType | null;
+  schema: GenericComponentType;
+  id: string;
 };

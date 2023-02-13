@@ -36,6 +36,8 @@ export declare type GenericComponentType = {
     styles?: (params: GenericObjectType) => string;
     hooks?: (params: ActionsType) => hooksType;
     state?: StateType;
+    selector: string;
+    name: string;
 };
 export declare type ComponentSchemaProps = {
     props: PropType;
@@ -60,4 +62,10 @@ export declare type TemplateSchemaType = {
 export declare type getHookParamsType = {
     actions: ActionsType;
     schema: GenericComponentType;
+};
+export declare type applyStylesParamsType = {
+    actions: ActionsType;
+    props: GenericObjectType | null;
+    schema: GenericComponentType;
+    id: string;
 };

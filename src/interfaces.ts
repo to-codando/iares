@@ -1,4 +1,4 @@
-import { GenericObjectType, watcherStateType } from "./types";
+import { GenericObjectType, hooksType, watcherStateType } from './types';
 
 export interface IConfigApp {
   onMount: (context: Element, params?: GenericObjectType) => void;
@@ -34,7 +34,7 @@ export interface IComponent {
   template: (params: GenericObjectType) => GenericObjectType;
   actions?: (params: GenericObjectType) => GenericObjectType;
   styles?: (params: GenericObjectType) => string;
-  hooks?: (params: any) => void;
+  hooks?: (params: hooksType) => void;
   state?: GenericObjectType;
   props?: GenericObjectType | null;
 }

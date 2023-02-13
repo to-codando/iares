@@ -24,56 +24,64 @@ var _getComponentElementRefs = function (selector, context) {
     var componentElementRefs = context.querySelectorAll(selector);
     return Array.from(componentElementRefs);
 };
-var _setPropsElement = function (element, props) {
+var _setPropsElement = function (element, props, id) {
     if (!props)
         return;
     var isEvent = /^on/;
+    var isClass = /class/;
     for (var key in props) {
-        if (!isEvent.test(key))
+        if (!(isClass.test(key) && isEvent.test(key))) {
             element.setAttribute(key, props[key]);
+        }
         if (isEvent.test(key)) {
             var eventName = key.replace(/on/, "").toLocaleLowerCase();
             element.addEventListener(eventName, props[key]);
         }
+        if (isClass.test(key)) {
+            var scopedCss = "".concat(props[key], "_").concat(id);
+            element.setAttribute(key, scopedCss);
+        }
     }
 };
-var _setChildrenElement = function (element, children) {
+var _setChildrenElement = function (element, children, id) {
     children.forEach(function (child) {
         if (typeof child === "string") {
             element.textContent = child;
             return;
         }
-        var childElement = _createTemplateByObject(child);
+        var childElement = _createTemplateByObject(child, id);
         childElement && element.insertAdjacentElement("beforeend", childElement);
     });
 };
-var _createTemplateByObject = function (schema) {
-    return _createTemplateByArray([schema]);
+var _createTemplateByObject = function (schema, id) {
+    return _createTemplateByArray([schema], id);
 };
-var _createTemplateByArray = function (schema) {
+var _createTemplateByArray = function (schema, id) {
     var templateElement = null;
     schema.forEach(function (elementMap) {
         if (!elementMap.type)
             return;
         var element = _createElement(elementMap.type);
-        _setPropsElement(element, elementMap.props);
-        _setChildrenElement(element, elementMap.children);
+        _setPropsElement(element, elementMap.props, id);
+        _setChildrenElement(element, elementMap.children, id);
         templateElement = element;
     });
     return templateElement;
 };
 var _clearElement = function (element) {
-    element.innerHTML = '';
+    element.innerHTML = "";
     var attributesToRemove = element.getAttributeNames();
     attributesToRemove.forEach(function (attr) {
-        if (attr === 'data-component')
+        if (attr === "data-component")
             return;
         element.removeAttribute(attr);
     });
     return element;
 };
-var _createTemplateElement = function (schema) {
-    return Array.isArray(schema) ? _createTemplateByArray(schema) : _createTemplateByObject(schema);
+var _createTemplateElement = function (schema, id) {
+    return Array.isArray(schema)
+        ? _createTemplateByArray(schema, id)
+        : _createTemplateByObject(schema, id);
 };
 var _getActions = function (_a) {
     var schema = _a.schema, props = _a.props;
@@ -136,12 +144,40 @@ var _getHooks = function (_a) {
         return schema.hooks;
     return {};
 };
+var _createId = function () {
+    return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+};
+var _hasStyles = function (selector) { return !!document.head.querySelector("style#".concat(selector)); };
+var _applyStyles = function (_a) {
+    var _b;
+    var schema = _a.schema, actions = _a.actions, props = _a.props, id = _a.id;
+    if (!schema.hasOwnProperty("styles"))
+        return;
+    var regex = /\.\w+/gi;
+    var styles = ((_b = schema === null || schema === void 0 ? void 0 : schema.styles) === null || _b === void 0 ? void 0 : _b.call(schema, { actions: actions, props: props })) || "";
+    var css = styles.replace(regex, function (str) {
+        return "".concat(str, "_").concat(id);
+    });
+    if (_hasStyles(schema.name))
+        return;
+    var head = document.querySelector("head");
+    var styleElement = _createElement("style");
+    styleElement.setAttribute("id", schema.name);
+    styleElement.setAttribute("type", "text/css");
+    styleElement.innerHTML = css.trim();
+    head === null || head === void 0 ? void 0 : head.insertAdjacentElement("beforeend", styleElement);
+};
 var _createComponent = function (factory, params) {
     var _a;
     var props = params.props || _getProps(factory);
     var schema = _getComponentSchema({ props: props, factory: factory });
     var actions = _getActions({ schema: schema, props: props });
     var hooks = _getHooks({ schema: schema, actions: actions });
+    var componentId = _createId();
+    schema.selector = params.selector;
+    schema.name = _createSelector(factory.name);
     (_a = schema.state) === null || _a === void 0 ? void 0 : _a.watchState(function () { return mount(); });
     var beforeMount = function () { var _a; return (_a = hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
     var afterMount = function () { var _a; return (_a = hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
@@ -152,11 +188,12 @@ var _createComponent = function (factory, params) {
         var state = _getStateUtils(schema).state;
         var templateSchema = _getTemplate({ schema: schema, state: state, actions: actions });
         var componentElement = _clearElement(params.element);
-        var templateElement = _createTemplateElement(templateSchema);
+        var templateElement = _createTemplateElement(templateSchema, componentId);
         (_a = hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks);
         if (!templateElement)
             return;
         componentElement.insertAdjacentElement("beforeend", templateElement);
+        _applyStyles({ schema: schema, actions: actions, props: props, id: componentId });
         (_b = hooks.afterRender) === null || _b === void 0 ? void 0 : _b.call(hooks);
     };
     var unmount = function () {
