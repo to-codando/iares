@@ -48,6 +48,7 @@ const _setPropsElement = (element: Element, props: PropType, id: string): void =
   const isEvent = /^on/;
   const isClass = /class/;
 
+ 
   for (let key in props) {
     if (!(isClass.test(key) && isEvent.test(key))) {
       element.setAttribute(key, props[key]);
@@ -56,6 +57,8 @@ const _setPropsElement = (element: Element, props: PropType, id: string): void =
     if (isEvent.test(key)) {
       const eventName = key.replace(/on/, "").toLocaleLowerCase();
       element.addEventListener(eventName, props[key]);
+      element.removeAttribute('onclick')
+      element.removeAttribute(key.toLocaleLowerCase())
     }
 
     if (isClass.test(key)) {
@@ -169,7 +172,7 @@ const _isPropertyTarget = (props: PropType, factory: ComponentFactoryType) => {
 
 const _getComponentSchema = ({ props, factory }: ComponentSchemaProps) => {
   const componentName = _createSelector(factory.name);
-  let schema = factory({ props: {} });
+  let schema = factory({ props });
   if (!(props && _isPropertyTarget(props, factory))) return schema;
   return factory({ props: props[componentName] });
 };
@@ -219,11 +222,12 @@ const _removeStyles = (id: string) => {
 
 const _removeChildrenStyles = (parentElement: Element) => {
   const childrenName = Array.from(parentElement.querySelectorAll('[data-component^="*"]'))
-  console.log(childrenName)
+  // console.log(childrenName)
 }
 
 const _createComponent = (factory: ComponentFactoryType, params: ICreateComponentParams): IComponent => {
   const props = params.props || _getProps(factory);
+
   const schema = _getComponentSchema({ props, factory });
   const actions: ActionsType = _getActions({ schema, props });
   const hooks = _getHooks({ schema, actions });
@@ -241,22 +245,27 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
   schema.state?.watchState(() => mount());
 
   const beforeMount = (): void => hooks.beforeMount?.();
-  const afterMount = (): void => hooks.afterMount?.();
+  const afterMount = (): void =>{
+     hooks.afterMount?.(params);
+  }
   const beforeRender = (): void => hooks.beforeRender?.();
-  const afterRender = (): void => hooks.afterRender?.();
+  const afterRender = (params: GenericObjectType): void => {
+    hooks.afterRender?.(params);
+  }
 
   const mount = (): void => {
     const { state } = _getStateUtils(schema);
     const templateSchema = _getTemplate({ schema, state, actions });
     const componentElement = _clearElement(params.element as HTMLElement);
     const templateElement = _createTemplateElement(templateSchema, componentId);
+    
     hooks.beforeRender?.();
 
     if (!templateElement) return;
     componentElement.id = componentId;
     componentElement.insertAdjacentElement("beforeend", templateElement);
     _applyStyles({ schema, actions, props, id: componentId });
-    hooks.afterRender?.();
+    hooks.afterRender?.(params);
   };
 
   const unmount = () => {

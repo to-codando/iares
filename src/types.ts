@@ -33,9 +33,9 @@ export type HTMType = {
 
 export type hooksType = GenericObjectType & {
   beforeMount?: () => void;
-  afterMount?: () => void;
+  afterMount?: (params?: GenericObjectType) => void;
   beforeRender?: () => void;
-  afterRender?: () => void;
+  afterRender?: (params: GenericObjectType) => void;
   unmount?: () => void;
 };
 

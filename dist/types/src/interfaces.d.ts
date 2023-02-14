@@ -24,7 +24,7 @@ export interface IComponent {
     beforeMount: () => void;
     afterMount: () => void;
     beforeRender: () => void;
-    afterRender: () => void;
+    afterRender: (params: GenericObjectType) => void;
     element: Element;
     selector: string;
     template: (params: GenericObjectType) => GenericObjectType;

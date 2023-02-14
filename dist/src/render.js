@@ -38,6 +38,8 @@ var _setPropsElement = function (element, props, id) {
         if (isEvent.test(key)) {
             var eventName = key.replace(/on/, "").toLocaleLowerCase();
             element.addEventListener(eventName, props[key]);
+            element.removeAttribute('onclick');
+            element.removeAttribute(key.toLocaleLowerCase());
         }
         if (isClass.test(key)) {
             var scopedCss = "".concat(props[key], "_").concat(id);
@@ -131,7 +133,7 @@ var _isPropertyTarget = function (props, factory) {
 var _getComponentSchema = function (_a) {
     var props = _a.props, factory = _a.factory;
     var componentName = _createSelector(factory.name);
-    var schema = factory({ props: {} });
+    var schema = factory({ props: props });
     if (!(props && _isPropertyTarget(props, factory)))
         return schema;
     return factory({ props: props[componentName] });
@@ -181,7 +183,7 @@ var _removeStyles = function (id) {
 };
 var _removeChildrenStyles = function (parentElement) {
     var childrenName = Array.from(parentElement.querySelectorAll('[data-component^="*"]'));
-    console.log(childrenName);
+    // console.log(childrenName)
 };
 var _createComponent = function (factory, params) {
     var _a;
@@ -200,9 +202,15 @@ var _createComponent = function (factory, params) {
     });
     (_a = schema.state) === null || _a === void 0 ? void 0 : _a.watchState(function () { return mount(); });
     var beforeMount = function () { var _a; return (_a = hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
-    var afterMount = function () { var _a; return (_a = hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
+    var afterMount = function () {
+        var _a;
+        (_a = hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks, params);
+    };
     var beforeRender = function () { var _a; return (_a = hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks); };
-    var afterRender = function () { var _a; return (_a = hooks.afterRender) === null || _a === void 0 ? void 0 : _a.call(hooks); };
+    var afterRender = function (params) {
+        var _a;
+        (_a = hooks.afterRender) === null || _a === void 0 ? void 0 : _a.call(hooks, params);
+    };
     var mount = function () {
         var _a, _b;
         var state = _getStateUtils(schema).state;
@@ -215,7 +223,7 @@ var _createComponent = function (factory, params) {
         componentElement.id = componentId;
         componentElement.insertAdjacentElement("beforeend", templateElement);
         _applyStyles({ schema: schema, actions: actions, props: props, id: componentId });
-        (_b = hooks.afterRender) === null || _b === void 0 ? void 0 : _b.call(hooks);
+        (_b = hooks.afterRender) === null || _b === void 0 ? void 0 : _b.call(hooks, params);
     };
     var unmount = function () {
         var _a;
