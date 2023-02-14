@@ -44,6 +44,8 @@ export interface IRoute {
     start?: string;
     isActive?: boolean;
     mount: (context?: Element | null) => IMountComponentParam;
+    afterMount?: (context: contextCallbackType) => void;
+    beforeMount?: (context?: contextCallbackType) => void;
 }
 export interface IRouteConfig {
     routes: IRoute[];

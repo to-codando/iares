@@ -38,11 +38,20 @@ export const router = (params: IRouteConfig) => {
     const componentElement = _createElement("div");
     componentElement.dataset.component = componentSelector;
 
+    if(route?.beforeMount) {
+      await route.beforeMount({ element, props: { ...props, isRouted: true }})
+    }
+
     if (routerElement) {
       routerElement.innerHTML = "";
       routerElement.insertAdjacentElement("beforeend", componentElement);
       const newProps = { ...props, isRouted: true };
       render(component, { element, props: newProps });
+    }
+
+    if(route.afterMount) {
+      const newProps = { ...props, isRouted: true };
+      await route.afterMount({element: componentElement, props: newProps })
     }
   };
 

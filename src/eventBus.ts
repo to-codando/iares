@@ -1,6 +1,5 @@
 import {
   EventBusType,
-  GenericCallbackType,
   GenericObjectType,
   PubsubHandlerType,
   PubsubListenerType,
@@ -22,7 +21,6 @@ export const createEventBus = (): EventBusType => {
       listeners[eventName].push({ eventName, callback });
     }
     listeners[eventName].push({ eventName, callback });
-
     return { eventName, callback };
   };
 

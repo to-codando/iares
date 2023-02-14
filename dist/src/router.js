@@ -72,7 +72,7 @@ export var router = function (params) {
         return document.createElement(selector);
     };
     var _renderRoute = function (route) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, element, props, selector, routerElement, component, componentSelector, componentElement, newProps;
+        var _a, element, props, selector, routerElement, component, componentSelector, componentElement, newProps, newProps;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -85,13 +85,25 @@ export var router = function (params) {
                     componentSelector = _createSelector(component.name);
                     componentElement = _createElement("div");
                     componentElement.dataset.component = componentSelector;
+                    if (!(route === null || route === void 0 ? void 0 : route.beforeMount)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, route.beforeMount({ element: element, props: __assign(__assign({}, props), { isRouted: true }) })];
+                case 2:
+                    _b.sent();
+                    _b.label = 3;
+                case 3:
                     if (routerElement) {
                         routerElement.innerHTML = "";
                         routerElement.insertAdjacentElement("beforeend", componentElement);
                         newProps = __assign(__assign({}, props), { isRouted: true });
                         render(component, { element: element, props: newProps });
                     }
-                    return [2 /*return*/];
+                    if (!route.afterMount) return [3 /*break*/, 5];
+                    newProps = __assign(__assign({}, props), { isRouted: true });
+                    return [4 /*yield*/, route.afterMount({ element: componentElement, props: newProps })];
+                case 4:
+                    _b.sent();
+                    _b.label = 5;
+                case 5: return [2 /*return*/];
             }
         });
     }); };

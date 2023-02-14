@@ -179,6 +179,10 @@ var _removeStyles = function (id) {
     var style = document.head.querySelector("style#".concat(id));
     style === null || style === void 0 ? void 0 : style.remove();
 };
+var _removeChildrenStyles = function (parentElement) {
+    var childrenName = Array.from(parentElement.querySelectorAll('[data-component^="*"]'));
+    console.log(childrenName);
+};
 var _createComponent = function (factory, params) {
     var _a;
     var props = params.props || _getProps(factory);
@@ -188,7 +192,7 @@ var _createComponent = function (factory, params) {
     schema.selector = params.selector;
     schema.name = _createSelector(factory.name);
     var componentId = _createId(schema.selector);
-    eventDrive.on({
+    var unmountListener = eventDrive.on({
         eventName: "unmount",
         callback: function (payload) {
             unmount();
@@ -215,8 +219,11 @@ var _createComponent = function (factory, params) {
     };
     var unmount = function () {
         var _a;
-        if (props === null || props === void 0 ? void 0 : props.isRouted)
+        if (props === null || props === void 0 ? void 0 : props.isRouted) {
             _removeStyles(schema.name);
+            _removeChildrenStyles(params === null || params === void 0 ? void 0 : params.element);
+        }
+        eventDrive.off(unmountListener);
         (_a = hooks.unmount) === null || _a === void 0 ? void 0 : _a.call(hooks);
     };
     var setup = function () { };

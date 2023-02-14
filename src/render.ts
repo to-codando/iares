@@ -217,6 +217,11 @@ const _removeStyles = (id: string) => {
   style?.remove()
 }
 
+const _removeChildrenStyles = (parentElement: Element) => {
+  const childrenName = Array.from(parentElement.querySelectorAll('[data-component^="*"]'))
+  console.log(childrenName)
+}
+
 const _createComponent = (factory: ComponentFactoryType, params: ICreateComponentParams): IComponent => {
   const props = params.props || _getProps(factory);
   const schema = _getComponentSchema({ props, factory });
@@ -226,7 +231,8 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
   schema.selector = params.selector;
   schema.name = _createSelector(factory.name);
   const componentId = _createId(schema.selector);
-  eventDrive.on({
+  
+  const unmountListener = eventDrive.on({
     eventName: "unmount",
     callback: (payload) => {
       unmount()
@@ -254,7 +260,11 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
   };
 
   const unmount = () => {
-    if(props?.isRouted) _removeStyles(schema.name);
+    if(props?.isRouted) {
+      _removeStyles(schema.name);
+      _removeChildrenStyles(params?.element)
+    }
+    eventDrive.off(unmountListener);
     hooks.unmount?.();
   };
 
