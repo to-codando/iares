@@ -1,3 +1,5 @@
+import { createEventBus } from "./eventBus";
+
 import {
   ActionParamsType,
   ActionsType,
@@ -19,6 +21,8 @@ import {
 } from "./types";
 
 import { IComponent, ICreateComponentParams } from "./interfaces";
+
+export const eventDrive = createEventBus();
 
 const _createSelector = (value: string): string => {
   const regex = /(?=[A-Z])/;
@@ -208,6 +212,11 @@ const _applyStyles = ({ schema, actions, props, id }: applyStylesParamsType): vo
   head?.insertAdjacentElement("beforeend", styleElement);
 };
 
+const _removeStyles = (id: string) => {
+  const style = document.head.querySelector(`style#${id}`)
+  style?.remove()
+}
+
 const _createComponent = (factory: ComponentFactoryType, params: ICreateComponentParams): IComponent => {
   const props = params.props || _getProps(factory);
   const schema = _getComponentSchema({ props, factory });
@@ -217,7 +226,12 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
   schema.selector = params.selector;
   schema.name = _createSelector(factory.name);
   const componentId = _createId(schema.selector);
-
+  eventDrive.on({
+    eventName: "unmount",
+    callback: (payload) => {
+      unmount()
+    },
+  });
   schema.state?.watchState(() => mount());
 
   const beforeMount = (): void => hooks.beforeMount?.();
@@ -233,13 +247,14 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
     hooks.beforeRender?.();
 
     if (!templateElement) return;
-    componentElement.id = componentId
+    componentElement.id = componentId;
     componentElement.insertAdjacentElement("beforeend", templateElement);
     _applyStyles({ schema, actions, props, id: componentId });
     hooks.afterRender?.();
   };
 
   const unmount = () => {
+    if(props?.isRouted) _removeStyles(schema.name);
     hooks.unmount?.();
   };
 
@@ -257,6 +272,7 @@ const _createComponent = (factory: ComponentFactoryType, params: ICreateComponen
     unmount,
     setup,
     props,
+    eventDrive,
   };
 };
 

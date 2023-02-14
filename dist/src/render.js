@@ -9,6 +9,8 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+import { createEventBus } from "./eventBus";
+export var eventDrive = createEventBus();
 var _createSelector = function (value) {
     var regex = /(?=[A-Z])/;
     return value.split(regex).join("-").toLocaleLowerCase();
@@ -173,6 +175,10 @@ var _applyStyles = function (_a) {
     styleElement.innerHTML = css.trim();
     head === null || head === void 0 ? void 0 : head.insertAdjacentElement("beforeend", styleElement);
 };
+var _removeStyles = function (id) {
+    var style = document.head.querySelector("style#".concat(id));
+    style === null || style === void 0 ? void 0 : style.remove();
+};
 var _createComponent = function (factory, params) {
     var _a;
     var props = params.props || _getProps(factory);
@@ -182,6 +188,12 @@ var _createComponent = function (factory, params) {
     schema.selector = params.selector;
     schema.name = _createSelector(factory.name);
     var componentId = _createId(schema.selector);
+    eventDrive.on({
+        eventName: "unmount",
+        callback: function (payload) {
+            unmount();
+        },
+    });
     (_a = schema.state) === null || _a === void 0 ? void 0 : _a.watchState(function () { return mount(); });
     var beforeMount = function () { var _a; return (_a = hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
     var afterMount = function () { var _a; return (_a = hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks); };
@@ -203,10 +215,12 @@ var _createComponent = function (factory, params) {
     };
     var unmount = function () {
         var _a;
+        if (props === null || props === void 0 ? void 0 : props.isRouted)
+            _removeStyles(schema.name);
         (_a = hooks.unmount) === null || _a === void 0 ? void 0 : _a.call(hooks);
     };
     var setup = function () { };
-    return __assign(__assign({}, schema), { element: params.element, selector: params.selector, beforeMount: beforeMount, afterMount: afterMount, beforeRender: beforeRender, afterRender: afterRender, mount: mount, unmount: unmount, setup: setup, props: props });
+    return __assign(__assign({}, schema), { element: params.element, selector: params.selector, beforeMount: beforeMount, afterMount: afterMount, beforeRender: beforeRender, afterRender: afterRender, mount: mount, unmount: unmount, setup: setup, props: props, eventDrive: eventDrive });
 };
 export var render = function (factory, params, callback) {
     var componentSelector = _getComponentSelector(factory.name);

@@ -1,4 +1,4 @@
-import { GenericObjectType, hooksType } from './types';
+import { ComponentFactoryType, EventBusType, GenericObjectType, contextCallbackType, hooksType } from './types';
 export interface IConfigApp {
     onMount: (context: Element, params?: GenericObjectType) => void;
 }
@@ -33,4 +33,22 @@ export interface IComponent {
     hooks?: (params: hooksType) => void;
     state?: GenericObjectType;
     props?: GenericObjectType | null;
+    eventDrive: EventBusType;
+}
+export interface IMountComponentParam {
+    component: ComponentFactoryType;
+}
+export interface IRoute {
+    regex: RegExp;
+    default?: string;
+    start?: string;
+    isActive?: boolean;
+    mount: (context?: Element | null) => IMountComponentParam;
+}
+export interface IRouteConfig {
+    routes: IRoute[];
+    context: contextCallbackType;
+}
+export interface IRouteKey {
+    key: string;
 }

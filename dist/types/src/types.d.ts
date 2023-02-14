@@ -5,6 +5,7 @@ export declare type contextCallbackType = {
     element: Element;
     props: GenericObjectType | null;
 };
+export declare type GenericCallbackType = (params?: GenericObjectType) => any;
 export declare type CallbackRenderType = (context: contextCallbackType) => void;
 export declare type watcherStateType = (payload: GenericObjectType) => any;
 export declare type PropType = GenericObjectType | null;
@@ -68,4 +69,16 @@ export declare type applyStylesParamsType = {
     props: GenericObjectType | null;
     schema: GenericComponentType;
     id: string;
+};
+export declare type PubsubListenerType = {
+    [key: string]: PubsubHandlerType[];
+};
+export declare type PubsubHandlerType = {
+    eventName: string;
+    callback: GenericCallbackType;
+};
+export declare type EventBusType = {
+    on: (params: PubsubHandlerType) => PubsubHandlerType;
+    off: (params: PubsubHandlerType) => void;
+    emit: (eventName: string, payload: GenericObjectType) => void;
 };
