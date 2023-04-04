@@ -173,13 +173,13 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 	const _eventDrive = _createEventDrive(hostElement);
 
 	component?.store?.watchState((data: GenericObjectType) => _updateView(data));
-	_eventDrive.execute(() => {
-		hooks?.beforeMount?.();
+	_eventDrive.execute((element) => {
+		hooks?.beforeMount?.(element);
 	});
 
 	const _updateView = (payload?: GenericObjectType) => {
-		_eventDrive.execute(() => {
-			hooks?.beforeRender?.();
+		_eventDrive.execute((element) => {
+			hooks?.beforeRender?.(element);
 		});
 		hostElement.innerHTML = "";
 		component?.styles &&
@@ -263,8 +263,8 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 		slotsOrigin.forEach((slot) => slot.remove());
 		slotsDestiny.forEach((slot) => slot.remove());
 
-		_eventDrive.execute(() => {
-			hooks?.afterRender?.();
+		_eventDrive.execute((element) => {
+			hooks?.afterRender?.(element);
 
 			const slotedElements = Array.from(
 				hostElement.querySelectorAll("[sloted]"),
@@ -289,13 +289,15 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 		});
 
 		eventDrive.on("ON-DESTROY", (payload) => {
-			hooks?.destroy?.();
+			_eventDrive.execute((element) => {
+				hooks?.destroy?.(element);
+			});
 		});
 	};
 
 	_updateView();
-	_eventDrive.execute(() => {
-		hooks?.afterMount?.();
+	_eventDrive.execute((element) => {
+		hooks?.afterMount?.(element);
 	});
 };
 
