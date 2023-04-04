@@ -90,29 +90,11 @@ var _bindCssStyles = function (styles, selector, componentId) {
     stylesElement.insertAdjacentHTML("beforeend", css);
     document.head.insertAdjacentElement("beforeend", stylesElement);
 };
-var _createEventDrive = function () {
-    var beforeRender = function (handler) {
-        handler();
+var _createEventDrive = function (element) {
+    var execute = function (handler) {
+        handler(element);
     };
-    var afterRender = function (handler) {
-        handler();
-    };
-    var beforeMount = function (handler) {
-        handler();
-    };
-    var afterMount = function (handler) {
-        handler();
-    };
-    var destroy = function (handler) {
-        handler();
-    };
-    return {
-        beforeRender: beforeRender,
-        afterRender: afterRender,
-        beforeMount: beforeMount,
-        afterMount: afterMount,
-        destroy: destroy,
-    };
+    return { execute: execute };
 };
 var _createComponent = function (template, context) {
     var _a, _b;
@@ -127,15 +109,15 @@ var _createComponent = function (template, context) {
     var hooks = component === null || component === void 0 ? void 0 : component.hooks;
     var componentId = _createId();
     var isFunction = true;
-    var _eventDrive = _createEventDrive();
+    var _eventDrive = _createEventDrive(hostElement);
     (_b = component === null || component === void 0 ? void 0 : component.store) === null || _b === void 0 ? void 0 : _b.watchState(function (data) { return _updateView(data); });
-    _eventDrive.beforeMount(function () {
+    _eventDrive.execute(function () {
         var _a;
         (_a = hooks === null || hooks === void 0 ? void 0 : hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks);
     });
     var _updateView = function (payload) {
         var _a;
-        _eventDrive.beforeMount(function () {
+        _eventDrive.execute(function () {
             var _a;
             (_a = hooks === null || hooks === void 0 ? void 0 : hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks);
         });
@@ -191,7 +173,7 @@ var _createComponent = function (template, context) {
         });
         slotsOrigin.forEach(function (slot) { return slot.remove(); });
         slotsDestiny.forEach(function (slot) { return slot.remove(); });
-        _eventDrive.afterRender(function () {
+        _eventDrive.execute(function () {
             var _a;
             (_a = hooks === null || hooks === void 0 ? void 0 : hooks.afterRender) === null || _a === void 0 ? void 0 : _a.call(hooks);
             var slotedElements = Array.from(hostElement.querySelectorAll("[sloted]"));
@@ -216,7 +198,7 @@ var _createComponent = function (template, context) {
         });
     };
     _updateView();
-    _eventDrive.afterMount(function () {
+    _eventDrive.execute(function () {
         var _a;
         (_a = hooks === null || hooks === void 0 ? void 0 : hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks);
     });

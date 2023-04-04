@@ -1,31 +1,36 @@
 import { HTMType } from "../template/types";
-export declare type GenericObjectType = {
+export type GenericObjectType = {
     [key: string]: any;
 };
-export declare type TemplateType = HTMType | HTMType[];
-export declare type RenderType = {
+export type TemplateType = HTMType | HTMType[];
+export type RenderType = {
     (template: TemplateType, context?: HTMLElement, options?: GenericObjectType): void;
 };
-export declare type BindStylesParamsType = {
+export type BindStylesParamsType = {
     (styles: string, selector: string, id: string): void;
 };
-export declare type CallbackType = {
-    (): void;
+export type CallbackType = {
+    (element: HTMLElement): void;
 };
-export declare type HookType = {
+export type CallbackExecutorType = {
+    (callback: CallbackType): void;
+};
+export type HookType = {
     (handler: CallbackType): void;
 };
-export declare type HooksType = {
+export type HooksType = {
     beforeRender: HookType;
     afterRender: HookType;
     beforeMount: HookType;
     afterMount: HookType;
     destroy: HookType;
 };
-export declare type EventDriveFactoryType = {
-    (): HooksType;
+export type EventDriveFactoryType = {
+    (element: HTMLElement): {
+        execute: CallbackExecutorType;
+    };
 };
-export declare type ScopeType = {
+export type ScopeType = {
     uuid: string | null;
     componentId: string | null;
 };
