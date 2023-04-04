@@ -5,11 +5,12 @@ import {
 	RenderType,
 	TemplateType,
 	BindStylesParamsType,
-	CallbackType,
 	EventDriveFactoryType,
+	CallbackExecutorType,
 } from "./types";
 
 import { pubsubFactory } from "../pubsub";
+import { HooksType } from "./types";
 
 export const eventDrive = pubsubFactory();
 
@@ -150,30 +151,11 @@ const _bindCssStyles: BindStylesParamsType = (
 	document.head.insertAdjacentElement("beforeend", stylesElement);
 };
 
-const _createEventDrive: EventDriveFactoryType = () => {
-	const beforeRender = (handler: CallbackType) => {
-		handler();
+const _createEventDrive: EventDriveFactoryType = (element: HTMLElement) => {
+	const execute: CallbackExecutorType = (handler) => {
+		handler(element);
 	};
-	const afterRender = (handler: CallbackType) => {
-		handler();
-	};
-	const beforeMount = (handler: CallbackType) => {
-		handler();
-	};
-	const afterMount = (handler: CallbackType) => {
-		handler();
-	};
-	const destroy = (handler: CallbackType) => {
-		handler();
-	};
-
-	return {
-		beforeRender,
-		afterRender,
-		beforeMount,
-		afterMount,
-		destroy,
-	};
+	return { execute };
 };
 
 const _createComponent = (template: HTMType, context: HTMLElement) => {
@@ -188,14 +170,15 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 	const hooks = component?.hooks;
 	const componentId = _createId();
 	const isFunction = true;
-	const _eventDrive = _createEventDrive();
+	const _eventDrive = _createEventDrive(hostElement);
+
 	component?.store?.watchState((data: GenericObjectType) => _updateView(data));
-	_eventDrive.beforeMount(() => {
+	_eventDrive.execute(() => {
 		hooks?.beforeMount?.();
 	});
 
 	const _updateView = (payload?: GenericObjectType) => {
-		_eventDrive.beforeMount(() => {
+		_eventDrive.execute(() => {
 			hooks?.beforeRender?.();
 		});
 		hostElement.innerHTML = "";
@@ -280,7 +263,7 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 		slotsOrigin.forEach((slot) => slot.remove());
 		slotsDestiny.forEach((slot) => slot.remove());
 
-		_eventDrive.afterRender(() => {
+		_eventDrive.execute(() => {
 			hooks?.afterRender?.();
 
 			const slotedElements = Array.from(
@@ -311,7 +294,7 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 	};
 
 	_updateView();
-	_eventDrive.afterMount(() => {
+	_eventDrive.execute(() => {
 		hooks?.afterMount?.();
 	});
 };
