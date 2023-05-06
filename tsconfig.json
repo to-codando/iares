@@ -23,11 +23,11 @@
 
 {
   "compilerOptions": {
-    "allowJs": false,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames":true,
     "declaration": true,
-    "declarationDir": "dist/types",
+    // "declarationDir": "dist/types",
     "esModuleInterop": true,
     "outDir": "./dist",
     "jsx": "react",
@@ -36,11 +36,10 @@
     "moduleResolution": "node",
     "noEmit": false,
     "resolveJsonModule": true,
-    // "rootDir": "./src",
+    "rootDir": "./src",
     "sourceMap": true,
     "strict": true,
-    "target": "es5",
-    // "types": ["jest", "node"]
+    "target": "esnext",
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

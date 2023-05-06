@@ -1,26 +1,23 @@
 import { pubsubFactory } from "../pubsub";
-export var eventDrive = pubsubFactory();
-var _createSelector = function (text) {
-    return text.split(/(?=[A-Z])/).join("-").toLowerCase();
-};
-var _createId = function () {
-    var randomStr = Math.floor((1 + Math.random()) * 0x10000)
+export const eventDrive = pubsubFactory();
+const _createSelector = (text) => text.split(/(?=[A-Z])/).join("-").toLowerCase();
+const _createId = () => {
+    const randomStr = Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
         .substring(1);
-    return "".concat(randomStr);
+    return `${randomStr}`;
 };
-var _bindProps = function (element, props, isFactory, componentId, selector) {
-    if (isFactory === void 0) { isFactory = true; }
+const _bindProps = (element, props, isFactory = true, componentId, selector) => {
     if (!props)
         return;
-    var attrs = Object.keys(props);
-    var isCssClass = function (value) { return /^class/.test(value); };
-    var isEvent = function (value) { return /^on/.test(value); };
-    var isAction = function (value) { return typeof value === "function"; };
-    attrs.forEach(function (attr) {
+    const attrs = Object.keys(props);
+    const isCssClass = (value) => /^class/.test(value);
+    const isEvent = (value) => /^on/.test(value);
+    const isAction = (value) => typeof value === "function";
+    attrs.forEach((attr) => {
         if (isEvent(attr)) {
-            var eventName = attr.toLowerCase().replace(/on/, "");
-            var handler = props[attr];
+            const eventName = attr.toLowerCase().replace(/on/, "");
+            const handler = props[attr];
             element.addEventListener(eventName, handler);
         }
         if (isEvent(attr) === isAction(props[attr]) &&
@@ -29,23 +26,23 @@ var _bindProps = function (element, props, isFactory, componentId, selector) {
             element.setAttribute(attr, props[attr]);
         }
         if (isCssClass(attr)) {
-            var styleElement = document.head.querySelector("[id=".concat(selector, "]"));
-            var componentUUID = styleElement === null || styleElement === void 0 ? void 0 : styleElement.getAttribute("component-id");
-            var cssClassNames = _applyCssContext(props[attr], componentUUID);
+            const styleElement = document.head.querySelector(`[id=${selector}]`);
+            const componentUUID = styleElement?.getAttribute("component-id");
+            const cssClassNames = _applyCssContext(props[attr], componentUUID);
             element.setAttribute(attr, cssClassNames);
         }
     });
 };
-var _createChildrenByObject = function (template, context, componentId, selector) {
+const _createChildrenByObject = (template, context, componentId, selector) => {
     if (typeof template === "string") {
         return (context.textContent += template);
     }
-    if (typeof (template === null || template === void 0 ? void 0 : template.type) === "function") {
+    if (typeof template?.type === "function") {
         _createComponent(template, context);
         return;
     }
-    if (typeof (template === null || template === void 0 ? void 0 : template.type) === "string") {
-        var element = document.createElement(template.type);
+    if (typeof template?.type === "string") {
+        const element = document.createElement(template.type);
         _bindProps(element, template.props, false, componentId, selector);
         _createChildren(template.children, element, componentId, selector);
         context.insertAdjacentElement("beforeend", element);
@@ -56,84 +53,78 @@ var _createChildrenByObject = function (template, context, componentId, selector
         return;
     }
     if (typeof template === "object" && !Array.isArray(template)) {
-        var error = new Error();
-        error.stack = "ComponentError:Component is not a named function and must be.\n    ".concat(JSON.stringify(template), "\n    ");
+        const error = new Error();
+        error.stack = `ComponentError:Component is not a named function and must be.
+    ${JSON.stringify(template)}
+    `;
         throw error;
     }
 };
-var _createChildrenByArray = function (template, context, componentId, selector) {
-    template.forEach(function (templateItem) {
+const _createChildrenByArray = (template, context, componentId, selector) => {
+    template.forEach((templateItem) => {
         _createChildrenByObject(templateItem, context, componentId, selector);
     });
 };
-var _createChildren = function (template, context, componentId, selector) {
-    return !Array.isArray(template)
-        ? _createChildrenByObject(template, context, componentId, selector)
-        : _createChildrenByArray(template, context, componentId, selector);
-};
-var _hasStyles = function (selector) {
-    return document.querySelector("style#".concat(selector));
-};
-var _applyCssContext = function (cssText, id) {
+const _createChildren = (template, context, componentId, selector) => !Array.isArray(template)
+    ? _createChildrenByObject(template, context, componentId, selector)
+    : _createChildrenByArray(template, context, componentId, selector);
+const _hasStyles = (selector) => document.querySelector(`style#${selector}`);
+const _applyCssContext = (cssText, id) => {
     if (!id)
         return cssText;
-    var context = /ctx/g;
+    const context = /ctx/g;
     return cssText.replace(context, id);
 };
-var _bindCssStyles = function (styles, selector, componentId) {
+const _bindCssStyles = (styles, selector, componentId) => {
     if (_hasStyles(selector))
         return;
-    var css = _applyCssContext(styles, componentId);
-    var stylesElement = document.createElement("style");
+    const css = _applyCssContext(styles, componentId);
+    const stylesElement = document.createElement("style");
     stylesElement.setAttribute("id", selector);
     stylesElement.setAttribute("component-id", componentId);
     stylesElement.insertAdjacentHTML("beforeend", css);
     document.head.insertAdjacentElement("beforeend", stylesElement);
 };
-var _createEventDrive = function (element) {
-    var execute = function (handler) {
+const _createEventDrive = (element) => {
+    const execute = (handler) => {
         handler(element);
     };
-    return { execute: execute };
+    return { execute };
 };
-var _createComponent = function (template, context) {
-    var _a, _b;
+const _createComponent = (template, context) => {
     if (typeof template.type !== "function")
         throw new Error("Component is not a named function and must be.");
-    var componentFactory = template.type, props = template.props;
-    var component = componentFactory({ props: props });
-    var selector = _createSelector(componentFactory.name);
-    var hostElement = document.createElement(selector);
-    var state = ((_a = component === null || component === void 0 ? void 0 : component.store) === null || _a === void 0 ? void 0 : _a.state) || {};
-    var actions = (component === null || component === void 0 ? void 0 : component.actions) || {};
-    var hooks = component === null || component === void 0 ? void 0 : component.hooks;
-    var componentId = _createId();
-    var isFunction = true;
-    var _eventDrive = _createEventDrive(hostElement);
-    (_b = component === null || component === void 0 ? void 0 : component.store) === null || _b === void 0 ? void 0 : _b.watchState(function (data) { return _updateView(data); });
-    _eventDrive.execute(function (element) {
-        var _a;
-        (_a = hooks === null || hooks === void 0 ? void 0 : hooks.beforeMount) === null || _a === void 0 ? void 0 : _a.call(hooks, element);
+    const { type: componentFactory, props } = template;
+    const component = componentFactory({ props });
+    const selector = _createSelector(componentFactory.name);
+    const hostElement = document.createElement(selector);
+    const state = component?.store?.state || {};
+    const actions = component?.actions || {};
+    const hooks = component?.hooks;
+    const componentId = _createId();
+    const isFunction = true;
+    const _eventDrive = _createEventDrive(hostElement);
+    component?.store?.watchState((data) => _updateView(data));
+    _eventDrive.execute((element) => {
+        hooks?.beforeMount?.(element);
     });
-    var _updateView = function (payload) {
-        var _a;
-        _eventDrive.execute(function (element) {
-            var _a;
-            (_a = hooks === null || hooks === void 0 ? void 0 : hooks.beforeRender) === null || _a === void 0 ? void 0 : _a.call(hooks, element);
+    const _updateView = (payload) => {
+        _eventDrive.execute((element) => {
+            hooks?.beforeRender?.(element);
         });
         hostElement.innerHTML = "";
-        (component === null || component === void 0 ? void 0 : component.styles) &&
-            _bindCssStyles(component === null || component === void 0 ? void 0 : component.styles(), selector, componentId);
+        component?.styles &&
+            _bindCssStyles(component?.styles(), selector, componentId);
         _bindProps(hostElement, template.props, isFunction, componentId, selector);
         _createChildren(template.children, hostElement, componentId, selector);
         context.insertAdjacentElement("beforeend", hostElement);
-        var child = template.type({ props: template.props });
-        if (child === null || child === void 0 ? void 0 : child.template) {
-            var childHTM = (_a = child.template) === null || _a === void 0 ? void 0 : _a.call(child, { props: props || {}, state: state, actions: actions });
+        const child = template.type({ props: template.props });
+        if (child?.template) {
+            const childHTM = child.template?.({ props: props || {}, state, actions });
             _createChildrenByObject(childHTM, hostElement, componentId, selector);
         }
-        if (!(child === null || child === void 0 ? void 0 : child.template) && typeof (template === null || template === void 0 ? void 0 : template.type) === "function") {
-            var childHTM = template === null || template === void 0 ? void 0 : template.type({ props: props || {}, state: state, actions: actions });
+        if (!child?.template && typeof template?.type === "function") {
+            const childHTM = template?.type({ props: props || {}, state, actions });
             _bindProps(hostElement, template.props, isFunction, componentId, selector);
             if (!childHTM) {
                 hostElement.remove();
@@ -141,76 +132,67 @@ var _createComponent = function (template, context) {
             }
             _createChildrenByObject(childHTM, hostElement, componentId, selector);
         }
-        var slotsOrigin = Array.from(context.querySelectorAll("slot[target]"));
-        var slotsDestiny = Array.from(context.querySelectorAll("slot[id]"));
-        var scope = {
+        const slotsOrigin = Array.from(context.querySelectorAll("slot[target]"));
+        const slotsDestiny = Array.from(context.querySelectorAll("slot[id]"));
+        const scope = {
             uuid: null,
             componentId: null,
         };
-        slotsOrigin.forEach(function (slotOrigin) {
-            var _a, _b;
-            var targetId = slotOrigin.getAttribute("target") || "";
-            var targetContext = slotOrigin.getAttribute("ctx");
-            var contextStyleElement = (_a = document.head) === null || _a === void 0 ? void 0 : _a.querySelector("#".concat(targetContext));
-            var componentContextElement = (_b = document.head) === null || _b === void 0 ? void 0 : _b.querySelector("#".concat(selector));
-            var slotTargetSelector = "slot[id=".concat(targetId, "]");
-            var targetSlot = context.querySelector(slotTargetSelector);
-            var slotFragment = document.createDocumentFragment();
-            scope.uuid = (contextStyleElement === null || contextStyleElement === void 0 ? void 0 : contextStyleElement.getAttribute("component-id")) || null;
+        slotsOrigin.forEach((slotOrigin) => {
+            const targetId = slotOrigin.getAttribute("target") || "";
+            const targetContext = slotOrigin.getAttribute("ctx");
+            const contextStyleElement = document.head?.querySelector(`#${targetContext}`);
+            const componentContextElement = document.head?.querySelector(`#${selector}`);
+            const slotTargetSelector = `slot[id=${targetId}]`;
+            const targetSlot = context.querySelector(slotTargetSelector);
+            const slotFragment = document.createDocumentFragment();
+            scope.uuid = contextStyleElement?.getAttribute("component-id") || null;
             scope.componentId =
-                (componentContextElement === null || componentContextElement === void 0 ? void 0 : componentContextElement.getAttribute("component-id")) || null;
-            Array.from(slotOrigin.children).forEach(function (childElement) {
+                componentContextElement?.getAttribute("component-id") || null;
+            Array.from(slotOrigin.children).forEach((childElement) => {
                 targetContext && childElement.setAttribute("sloted", targetContext);
                 slotFragment.append(childElement);
                 if (slotOrigin.textContent !== "" &&
                     slotFragment.textContent !== slotOrigin.textContent) {
-                    var tempalteError = new Error();
-                    tempalteError.stack = "TemplateError: Invalid slot element. A content is not a valid html element and must be.\n ".concat(slotOrigin.textContent);
+                    const tempalteError = new Error();
+                    tempalteError.stack = `TemplateError: Invalid slot element. A content is not a valid html element and must be.\n ${slotOrigin.textContent}`;
                     throw tempalteError;
                 }
             });
-            targetSlot === null || targetSlot === void 0 ? void 0 : targetSlot.after(slotFragment);
+            targetSlot?.after(slotFragment);
         });
-        slotsOrigin.forEach(function (slot) { return slot.remove(); });
-        slotsDestiny.forEach(function (slot) { return slot.remove(); });
-        _eventDrive.execute(function (element) {
-            var _a;
-            (_a = hooks === null || hooks === void 0 ? void 0 : hooks.afterRender) === null || _a === void 0 ? void 0 : _a.call(hooks, element);
-            var slotedElements = Array.from(hostElement.querySelectorAll("[sloted]"));
-            var _bindCssContext = function (element) {
+        slotsOrigin.forEach((slot) => slot.remove());
+        slotsDestiny.forEach((slot) => slot.remove());
+        _eventDrive.execute((element) => {
+            hooks?.afterRender?.(element);
+            const slotedElements = Array.from(hostElement.querySelectorAll("[sloted]"));
+            const _bindCssContext = (element) => {
                 if (!scope.uuid)
                     return;
                 if (!scope.componentId)
                     return;
-                var regex = new RegExp(scope.componentId);
-                var cssClassNames = element.classList.toString();
+                const regex = new RegExp(scope.componentId);
+                const cssClassNames = element.classList.toString();
                 element.className = cssClassNames.replace(regex, scope.uuid);
-                var children = Array.from(element.querySelectorAll("[class$=\"".concat(scope.componentId, "\"]")));
-                children.forEach(function (element) { return _bindCssContext(element); });
+                const children = Array.from(element.querySelectorAll(`[class$="${scope.componentId}"]`));
+                children.forEach((element) => _bindCssContext(element));
             };
-            slotedElements.forEach(function (element) {
-                return _bindCssContext(element);
-            });
+            slotedElements.forEach((element) => _bindCssContext(element));
         });
-        eventDrive.on("ON-DESTROY", function (payload) {
-            _eventDrive.execute(function (element) {
-                var _a;
-                (_a = hooks === null || hooks === void 0 ? void 0 : hooks.destroy) === null || _a === void 0 ? void 0 : _a.call(hooks, element);
+        eventDrive.on("ON-DESTROY", (payload) => {
+            _eventDrive.execute((element) => {
+                hooks?.destroy?.(element);
             });
         });
     };
     _updateView();
-    _eventDrive.execute(function (element) {
-        var _a;
-        (_a = hooks === null || hooks === void 0 ? void 0 : hooks.afterMount) === null || _a === void 0 ? void 0 : _a.call(hooks, element);
+    _eventDrive.execute((element) => {
+        hooks?.afterMount?.(element);
     });
 };
-export var render = function (template, context) {
-    if (context === void 0) { context = document.body; }
+export const render = (template, context = document.body) => {
     !Array.isArray(template)
         ? _createComponent(template, context)
-        : template.forEach(function (templateItem) {
-            return _createComponent(templateItem, context);
-        });
+        : template.forEach((templateItem) => _createComponent(templateItem, context));
 };
 //# sourceMappingURL=index.js.map

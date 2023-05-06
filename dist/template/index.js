@@ -1,22 +1,14 @@
 import htm from "htm";
-var css = function (tags) {
-    var values = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        values[_i - 1] = arguments[_i];
-    }
+const css = (tags, ...values) => {
     return tags
-        .map(function (tag, index) {
-        return "".concat(tag).concat(values[index] || "");
+        .map((tag, index) => {
+        return `${tag}${values[index] || ""}`;
     })
         .join("");
 };
-function h(type, props) {
-    var children = [];
-    for (var _i = 2; _i < arguments.length; _i++) {
-        children[_i - 2] = arguments[_i];
-    }
-    return { type: type, props: props, children: children };
+function h(type, props, ...children) {
+    return { type, props, children };
 }
-var html = htm.bind(h);
+const html = htm.bind(h);
 export { html, css };
 //# sourceMappingURL=index.js.map

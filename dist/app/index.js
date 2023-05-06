@@ -1,13 +1,13 @@
-export var createApp = function (params) {
-    var hostElement = document.body;
-    var appConfig = {};
-    var mount = function () {
-        params.onMount((appConfig === null || appConfig === void 0 ? void 0 : appConfig.context) || hostElement);
+export const createApp = (params) => {
+    const hostElement = document.body;
+    const appConfig = {};
+    const mount = () => {
+        params.onMount(appConfig?.context || hostElement);
     };
-    var unmount = function () { };
-    var setup = function (params) {
+    const unmount = () => { };
+    const setup = (params) => {
         Object.assign(appConfig, params);
     };
-    return { mount: mount, unmount: unmount, setup: setup };
+    return { mount, unmount, setup };
 };
 //# sourceMappingURL=index.js.map
