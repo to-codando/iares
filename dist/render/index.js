@@ -191,8 +191,10 @@ const _createComponent = (template, context) => {
     });
 };
 export const render = (template, context = document.body) => {
+    const selector = template?.type?.name;
     !Array.isArray(template)
         ? _createComponent(template, context)
         : template.forEach((templateItem) => _createComponent(templateItem, context));
+    return context.querySelector(selector);
 };
 //# sourceMappingURL=index.js.map

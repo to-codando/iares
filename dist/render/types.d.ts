@@ -2,9 +2,9 @@ import { HTMType } from "../template/types";
 export type GenericObjectType = {
     [key: string]: any;
 };
-export type TemplateType = HTMType | HTMType[];
+export type TemplateType = HTMType;
 export type RenderType = {
-    (template: TemplateType, context?: HTMLElement, options?: GenericObjectType): void;
+    (template: TemplateType, context?: HTMLElement, options?: GenericObjectType): HTMLElement;
 };
 export type BindStylesParamsType = {
     (styles: string, selector: string, id: string): void;
