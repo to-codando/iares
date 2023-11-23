@@ -4,14 +4,14 @@ export type GenericObjectType = {
 	[key: string]: any;
 };
 
-export type TemplateType = HTMType
+export type TemplateType = HTMType|HTMType[]
 
 export type RenderType = {
 	(
 		template: TemplateType,
 		context?: HTMLElement,
 		options?: GenericObjectType,
-	): HTMLElement;
+	): string|undefined;
 };
 
 type FnHandlerType = {

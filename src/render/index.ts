@@ -302,11 +302,17 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 };
 
 export const render: RenderType = (template, context = document.body) => {
-	const selector = template?.type?.name
+
 	!Array.isArray(template)
 		? _createComponent(template, context)
 		: template.forEach((templateItem) =>
 				_createComponent(templateItem, context),
 		  );
-	return context.querySelector(selector)
+
+	if (!Array.isArray(template)) {
+		const selector = _createSelector(template?.type?.name)
+		return document?.querySelector?.(selector)?.outerHTML
+	}
+
+	return template.map(({ type }) => document?.querySelector?.(type.name).outerHTML).join('')
 };
