@@ -187,7 +187,7 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 		});
 		hostElement.innerHTML = "";
 		component?.styles &&
-			_bindCssStyles(component?.styles(), selector, componentId);
+			_bindCssStyles(component, selector, componentId);
 
 		_bindProps(hostElement, template.props, isFunction, componentId, selector);
 		_createChildren(

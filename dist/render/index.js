@@ -82,7 +82,7 @@ const _bindCssStyles = (component, selector, componentId) => {
         props: component?.props || {},
         actions: component?.state?.actions || {}
     };
-    const css = _applyCssContext(component.styles(styleParams), componentId);
+    const css = _applyCssContext(component?.styles(styleParams), componentId) || '';
     const stylesElement = document.createElement("style");
     stylesElement.setAttribute("id", selector);
     stylesElement.setAttribute("component-id", componentId);
@@ -118,7 +118,7 @@ const _createComponent = (template, context) => {
         });
         hostElement.innerHTML = "";
         component?.styles &&
-            _bindCssStyles(component?.styles(), selector, componentId);
+            _bindCssStyles(component, selector, componentId);
         _bindProps(hostElement, template.props, isFunction, componentId, selector);
         _createChildren(template.children, hostElement, componentId, selector);
         context.insertAdjacentElement("beforeend", hostElement);
