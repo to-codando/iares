@@ -1,10 +1,26 @@
+import { TState } from "../state/types";
 import { HTMType } from "../template/types";
 
 export type GenericObjectType = {
 	[key: string]: any;
 };
+export type ObjectType = {
+	[key: string]: any;
+};
+
+export type Store<State = ObjectType, Actions = ObjectType> = {
+	state: TState<State>;
+	actions: Actions;
+}
 
 export type TemplateType = HTMType|HTMType[]
+
+export type Component<S=void, T=void, P=ObjectType, D=Store> = {
+	styles: <Params=S>(params: Params) => string;
+	template: <Params=T>(params: Params) => TemplateType;
+	props: P
+	state: D
+}
 
 export type RenderType = {
 	(
@@ -19,7 +35,7 @@ type FnHandlerType = {
 };
 
 export type BindStylesParamsType = {
-	(styles: string, selector: string, id: string): void;
+	(component: Component, selector: string, id: string): void;
 };
 
 export type CallbackType = {

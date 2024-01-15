@@ -75,10 +75,14 @@ const _applyCssContext = (cssText, id) => {
     const context = /ctx/g;
     return cssText.replace(context, id);
 };
-const _bindCssStyles = (styles, selector, componentId) => {
+const _bindCssStyles = (component, selector, componentId) => {
     if (_hasStyles(selector))
         return;
-    const css = _applyCssContext(styles, componentId);
+    const styleParams = {
+        props: component?.props || {},
+        actions: component?.state?.actions || {}
+    };
+    const css = _applyCssContext(component.styles(styleParams), componentId);
     const stylesElement = document.createElement("style");
     stylesElement.setAttribute("id", selector);
     stylesElement.setAttribute("component-id", componentId);
