@@ -118,7 +118,8 @@ const _createChildren = (template: TemplateType, context: HTMLElement, component
 const _hasStyles = (selector: string) => document.querySelector(`style#${selector}`);
 
 const _hasProps = (component: Component) => {
-  return "props" in component && Object.keys(component?.props).length;
+  const props = component?.props || {};
+  return Object.keys(props).length >= 1;
 };
 
 const _applyCssContext = (cssText: string, id: string | null) => {
@@ -162,6 +163,8 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
   const componentId = _createId();
   const isFunction = true;
   const _eventDrive = _createEventDrive(hostElement);
+
+  hostElement.setAttribute("id", componentId);
 
   component?.store?.watchState((data: GenericObjectType) => _updateView(data));
   _eventDrive.execute((element) => {

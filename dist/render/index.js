@@ -1,6 +1,9 @@
 import { pubsubFactory } from "../pubsub";
 export const eventDrive = pubsubFactory();
-const _createSelector = (text) => text.split(/(?=[A-Z])/).join("-").toLowerCase();
+const _createSelector = (text) => text
+    .split(/(?=[A-Z])/)
+    .join("-")
+    .toLowerCase();
 const _createId = () => {
     const randomStr = Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
@@ -14,15 +17,13 @@ const _bindProps = (element, props, isFactory = true, componentId, selector) => 
     const isCssClass = (value) => /^class/.test(value);
     const isEvent = (value) => /^on/.test(value);
     const isAction = (value) => typeof value === "function";
-    attrs.forEach((attr) => {
+    for (const attr of attrs) {
         if (isEvent(attr)) {
             const eventName = attr.toLowerCase().replace(/on/, "");
             const handler = props[attr];
             element.addEventListener(eventName, handler);
         }
-        if (isEvent(attr) === isAction(props[attr]) &&
-            isFactory !== true &&
-            isEvent(attr) !== true) {
+        if (isEvent(attr) === isAction(props[attr]) && isFactory !== true && isEvent(attr) !== true) {
             element.setAttribute(attr, props[attr]);
         }
         if (isCssClass(attr)) {
@@ -31,11 +32,12 @@ const _bindProps = (element, props, isFactory = true, componentId, selector) => 
             const cssClassNames = _applyCssContext(props[attr], componentUUID);
             element.setAttribute(attr, cssClassNames);
         }
-    });
+    }
 };
 const _createChildrenByObject = (template, context, componentId, selector) => {
     if (typeof template === "string") {
-        return (context.textContent += template);
+        context.textContent += template;
+        return context.textContent;
     }
     if (typeof template?.type === "function") {
         _createComponent(template, context);
@@ -61,14 +63,18 @@ const _createChildrenByObject = (template, context, componentId, selector) => {
     }
 };
 const _createChildrenByArray = (template, context, componentId, selector) => {
-    template.forEach((templateItem) => {
-        _createChildrenByObject(templateItem, context, componentId, selector);
-    });
+    for (const element of template) {
+        _createChildrenByObject(element, context, componentId, selector);
+    }
 };
 const _createChildren = (template, context, componentId, selector) => !Array.isArray(template)
     ? _createChildrenByObject(template, context, componentId, selector)
     : _createChildrenByArray(template, context, componentId, selector);
 const _hasStyles = (selector) => document.querySelector(`style#${selector}`);
+const _hasProps = (component) => {
+    const props = component?.props || {};
+    return Object.keys(props).length >= 1;
+};
 const _applyCssContext = (cssText, id) => {
     if (!id)
         return cssText;
@@ -76,13 +82,13 @@ const _applyCssContext = (cssText, id) => {
     return cssText.replace(context, id);
 };
 const _bindCssStyles = (component, selector, componentId) => {
-    if (_hasStyles(selector))
+    if (_hasStyles(selector) && !_hasProps(component))
         return;
     const styleParams = {
         props: component?.props || {},
-        actions: component?.state?.actions || {}
+        actions: component?.state?.actions || {},
     };
-    const css = _applyCssContext(component?.styles(styleParams), componentId) || '';
+    const css = _applyCssContext(component?.styles(styleParams), componentId) || "";
     const stylesElement = document.createElement("style");
     stylesElement.setAttribute("id", selector);
     stylesElement.setAttribute("component-id", componentId);
@@ -108,6 +114,7 @@ const _createComponent = (template, context) => {
     const componentId = _createId();
     const isFunction = true;
     const _eventDrive = _createEventDrive(hostElement);
+    hostElement.setAttribute("id", componentId);
     component?.store?.watchState((data) => _updateView(data));
     _eventDrive.execute((element) => {
         hooks?.beforeMount?.(element);
@@ -117,8 +124,7 @@ const _createComponent = (template, context) => {
             hooks?.beforeRender?.(element);
         });
         hostElement.innerHTML = "";
-        component?.styles &&
-            _bindCssStyles(component, selector, componentId);
+        component?.styles && _bindCssStyles(component, selector, componentId);
         _bindProps(hostElement, template.props, isFunction, componentId, selector);
         _createChildren(template.children, hostElement, componentId, selector);
         context.insertAdjacentElement("beforeend", hostElement);
@@ -142,7 +148,7 @@ const _createComponent = (template, context) => {
             uuid: null,
             componentId: null,
         };
-        slotsOrigin.forEach((slotOrigin) => {
+        for (const slotOrigin of slotsOrigin) {
             const targetId = slotOrigin.getAttribute("target") || "";
             const targetContext = slotOrigin.getAttribute("ctx");
             const contextStyleElement = document.head?.querySelector(`#${targetContext}`);
@@ -150,21 +156,20 @@ const _createComponent = (template, context) => {
             const slotTargetSelector = `slot[id=${targetId}]`;
             const targetSlot = context.querySelector(slotTargetSelector);
             const slotFragment = document.createDocumentFragment();
+            const children = Array.from(slotOrigin.children);
             scope.uuid = contextStyleElement?.getAttribute("component-id") || null;
-            scope.componentId =
-                componentContextElement?.getAttribute("component-id") || null;
-            Array.from(slotOrigin.children).forEach((childElement) => {
+            scope.componentId = componentContextElement?.getAttribute("component-id") || null;
+            for (const childElement of children) {
                 targetContext && childElement.setAttribute("sloted", targetContext);
                 slotFragment.append(childElement);
-                if (slotOrigin.textContent !== "" &&
-                    slotFragment.textContent !== slotOrigin.textContent) {
+                if (slotOrigin.textContent !== "" && slotFragment.textContent !== slotOrigin.textContent) {
                     const tempalteError = new Error();
                     tempalteError.stack = `TemplateError: Invalid slot element. A content is not a valid html element and must be.\n ${slotOrigin.textContent}`;
                     throw tempalteError;
                 }
-            });
+            }
             targetSlot?.after(slotFragment);
-        });
+        }
         slotsOrigin.forEach((slot) => slot.remove());
         slotsDestiny.forEach((slot) => slot.remove());
         _eventDrive.execute((element) => {
@@ -183,7 +188,7 @@ const _createComponent = (template, context) => {
             };
             slotedElements.forEach((element) => _bindCssContext(element));
         });
-        eventDrive.on("ON-DESTROY", (payload) => {
+        eventDrive.on("ON-DESTROY", () => {
             _eventDrive.execute((element) => {
                 hooks?.destroy?.(element);
             });
@@ -202,6 +207,6 @@ export const render = (template, context = document.body) => {
         const selector = _createSelector(template?.type?.name);
         return document?.querySelector?.(selector)?.outerHTML;
     }
-    return template.map(({ type }) => document?.querySelector?.(type.name).outerHTML).join('');
+    return template.map(({ type }) => document?.querySelector?.(type.name).outerHTML).join("");
 };
 //# sourceMappingURL=index.js.map
