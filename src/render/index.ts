@@ -157,7 +157,7 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
   const component = componentFactory({ props });
   const selector = _createSelector(componentFactory.name);
   const hostElement = document.createElement(selector);
-  const state = component?.store?.state || {};
+  const state = component?.state?.state || {};
   const actions = component?.actions || {};
   const hooks = component?.hooks;
   const componentId = _createId();
@@ -166,7 +166,7 @@ const _createComponent = (template: HTMType, context: HTMLElement) => {
 
   hostElement.setAttribute("id", componentId);
 
-  component?.store?.watchState((data: GenericObjectType) => _updateView(data));
+  component?.state?.watchState((data: GenericObjectType) => _updateView(data));
   _eventDrive.execute((element) => {
     hooks?.beforeMount?.(element);
   });

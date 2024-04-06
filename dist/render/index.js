@@ -108,14 +108,14 @@ const _createComponent = (template, context) => {
     const component = componentFactory({ props });
     const selector = _createSelector(componentFactory.name);
     const hostElement = document.createElement(selector);
-    const state = component?.store?.state || {};
+    const state = component?.state?.state || {};
     const actions = component?.actions || {};
     const hooks = component?.hooks;
     const componentId = _createId();
     const isFunction = true;
     const _eventDrive = _createEventDrive(hostElement);
     hostElement.setAttribute("id", componentId);
-    component?.store?.watchState((data) => _updateView(data));
+    component?.state?.watchState((data) => _updateView(data));
     _eventDrive.execute((element) => {
         hooks?.beforeMount?.(element);
     });
