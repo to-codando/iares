@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": false,                       // Desative se não estiver usando arquivos JavaScript
+    "allowSyntheticDefaultImports": true,  // Permite importações padrão para módulos ES
+    "declaration": true,                    // Gera arquivos .d.ts para tipos
+    "declarationMap": true,                 // Gera mapas de declaração para tipos
+    "emitDeclarationOnly": false,            // Gera apenas arquivos de declaração, não arquivos JS
+    "esModuleInterop": true,                // Habilita interoperabilidade de módulos ES
+    "jsx": "react",                         // Se estiver usando JSX com React
+    "lib": ["es2020", "dom"],               // Inclua bibliotecas necessárias
+    "module": "esnext",                     // Usado para importação de módulos ES
+    "moduleResolution": "node",             // Resolva módulos como o Node.js
+    "outDir": "./dist",                     // Diretório de saída
+    "rootDir": "./src",                     // Diretório raiz dos arquivos de entrada
+    "sourceMap": true,                      // Gera mapas de origem para depuração
+    "strict": true,                         // Ativa todas as verificações estritas
+    "target": "esnext",                     // O alvo de saída JS (ajuste conforme necessário)
+    "types": []                             // Deixe vazio para evitar inclusão de tipos globais
+  },
+  "include": ["src/**/*"],                   // Inclua todos os arquivos na pasta src
+  "exclude": ["node_modules", "dist", "**/*.test.ts"] // Exclua testes e pastas não desejadas
+}
+

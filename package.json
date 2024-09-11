@@ -1,0 +1,36 @@
+{
+  "name": "iares",
+  "version": "1.2.5",
+  "description": "A reactive library javascript and typescript to build SPA",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["/dist"],
+  "scripts": {
+    "dev": "tsc --watch -p tsconfig.json",
+    "build": "tsc --build tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Rodrigo Rocha",
+  "license": "MIT",
+  "homepage": "https://github.com/to-codando/iares-ui#readme",
+  "url": "https://github.com/to-codando/iares-ui/issues",
+  "email": "rodrigo.desenvolvedor.web@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/to-codando/iares-ui.git",
+    "directory": "apps/iares"
+  },
+  "dependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "htm": "^3.1.1",
+    "markdown-it": "^14.1.0"
+  },
+  "peerDependencies": {
+    "htm": "^3.1.1",
+    "markdown-it": "^14.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.3"
+  }
+}
