@@ -1,8 +1,9 @@
-export type AppSetupParamsType = Object & {
+export type GenericObject<T = unknown> = {
+    [key: symbol]: T;
+};
+export type AppSetupParamsType = GenericObject & {
     context?: HTMLElement;
-    props?: {
-        [key: string]: any;
-    };
+    props?: GenericObject;
 };
 export type AppPropsType = AppSetupParamsType & {};
 export type AppParamsType = {

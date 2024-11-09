@@ -1,20 +1,28 @@
 export const createState = (value) => {
-    const state = value;
-    const handlers = new Set();
+    const _state = value;
+    const _handlers = new Set();
     const _notifyHandlers = (value) => {
-        handlers.forEach((handler) => handler(value));
+        for (const handler of _handlers) {
+            handler(value);
+        }
     };
-    const setState = (payload) => {
+    const set = (payload) => {
         const payloadCopy = JSON.parse(JSON.stringify(payload));
-        const stateCopy = JSON.parse(JSON.stringify(state));
+        const stateCopy = JSON.parse(JSON.stringify(_state));
         const newState = { ...stateCopy, ...payloadCopy };
-        Object.assign(state, newState);
+        Object.assign(_state, newState);
         _notifyHandlers(newState);
     };
-    const watchState = (handler) => {
-        handlers.add(handler);
-        return () => handlers.delete(handler);
+    const get = (filter) => {
+        const state = JSON.parse(JSON.stringify(_state));
+        if (filter)
+            return filter(state);
+        return state;
     };
-    return { state, setState, watchState };
+    const watch = (handler) => {
+        _handlers.add(handler);
+        return () => _handlers.delete(handler);
+    };
+    return { get, set, watch };
 };
 //# sourceMappingURL=index.js.map
