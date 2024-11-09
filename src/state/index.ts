@@ -1,29 +1,40 @@
-import {
+import type {
   TState,
+  TStateFilter,
   TStateHandler,
   TStateHandlerRemove,
-} from "./types";
+} from './types'
+type PrimitiveObject = {
+  [key: symbol]: string | number | boolean | object | null | undefined | unknown
+}
+export const createState = <S extends PrimitiveObject>(value: S): TState<S> => {
+  const _state: S = value
+  const _handlers = new Set<TStateHandler<S>>()
 
-export const createState = <T extends Object>(value: T): TState<T> => {
-  const state: T = value;
-  const handlers = new Set<TStateHandler<T>>();
+  const _notifyHandlers = (value: S): void => {
+    for (const handler of _handlers) {
+      handler<S>(value)
+    }
+  }
 
-  const _notifyHandlers = (value: T): void => {
-    handlers.forEach((handler) => handler<T>(value));
-  };
+  const set = (payload: S): void => {
+    const payloadCopy = JSON.parse(JSON.stringify(payload))
+    const stateCopy = JSON.parse(JSON.stringify(_state))
+    const newState = { ...stateCopy, ...payloadCopy }
+    Object.assign(_state, newState)
+    _notifyHandlers(newState)
+  }
 
-  const setState = (payload: T): void => {
-    const payloadCopy = JSON.parse(JSON.stringify(payload));
-    const stateCopy = JSON.parse(JSON.stringify(state));
-    const newState = { ...stateCopy, ...payloadCopy };
-    Object.assign(state, newState);
-    _notifyHandlers(newState);
-  };
+  const get = <R = S>(filter?: TStateFilter<S, R>): R => {
+    const state = JSON.parse(JSON.stringify(_state))
+    if (filter) return filter(state) as unknown as R
+    return state as unknown as R
+  }
 
-  const watchState = (handler: TStateHandler<T>): TStateHandlerRemove => {
-    handlers.add(handler);
-    return () => handlers.delete(handler);
-  };
+  const watch = (handler: TStateHandler<S>): TStateHandlerRemove => {
+    _handlers.add(handler)
+    return () => _handlers.delete(handler)
+  }
 
-  return { state, setState, watchState };
-};
+  return { get, set, watch }
+}

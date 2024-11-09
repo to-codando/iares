@@ -1,17 +1,19 @@
-export type TEmpty = null | undefined;
+export type TEmpty = null | undefined
 
 export type TGenericObject<T> = {
-  [key: string]: T;
-};
+  [key: symbol]: T
+}
 
-export type TStateValue<T> = TGenericObject<T>;
+export type TStateValue<T> = TGenericObject<T>
 
-export type TStateHandler<A> = <T extends A>(payload: T) => void;
+export type TStateFilter<S, R> = (state: S) => R
 
-export type TStateHandlerRemove = () => boolean;
+export type TStateHandler<A> = <T extends A>(payload: T) => void
 
-export type TState<T> = {
-  state: T;
-  setState: (payload: T) => void;
-  watchState: (handler: TStateHandler<T>) => TStateHandlerRemove;
-};
+export type TStateHandlerRemove = () => boolean
+
+export type TState<S> = {
+  get: <R = S>(filter?: TStateFilter<S, R>) => R
+  set: (payload: S) => void
+  watch: (handler: TStateHandler<S>) => TStateHandlerRemove
+}
