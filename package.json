@@ -1,6 +1,6 @@
 {
   "name": "iares",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A reactive library javascript and typescript to build SPA",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,15 +22,17 @@
     "directory": "apps/iares"
   },
   "dependencies": {
+    "@types/esbuild-copy-static-files": "^0.1.4",
     "@types/markdown-it": "^14.1.2",
-    "htm": "^3.1.1",
+    "htm": ">=3.1.1",
     "markdown-it": "^14.1.0"
   },
   "peerDependencies": {
-    "htm": "^3.1.1",
+    "htm": ">=3.1.1",
     "markdown-it": "^14.1.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4"
+    "@biomejs/biome": "^1.9.4",
+    "esbuild": "^0.24.0"
   }
 }
