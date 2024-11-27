@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/CreateApp/CreateApp.ts"],
+  "sourcesContent": ["import type {\n  Application,\n  ContextElement,\n  ContextHandler,\n  CallbackHandler,\n} from \"./types\";\n\nexport const CreateApp = (): Application => {\n  let _element!: ContextElement;\n\n  const setup = (callback: ContextHandler) => {\n    _element = callback();\n    return callback();\n  };\n\n  const mount = (callback: CallbackHandler) => {\n    return callback(_element);\n  };\n\n  const unmount = (callback: CallbackHandler) => {\n    return callback(_element);\n  };\n\n  return { setup, mount, unmount };\n};\n"],
+  "mappings": "+EAOO,IAAMA,EAAYC,EAAA,IAAmB,CAC1C,IAAIC,EAeJ,MAAO,CAAE,MAbKD,EAACE,IACbD,EAAWC,EAAS,EACbA,EAAS,GAFJ,SAaE,MARFF,EAACE,GACNA,EAASD,CAAQ,EADZ,SAQS,QAJPD,EAACE,GACRA,EAASD,CAAQ,EADV,UAIe,CACjC,EAjByB",
+  "names": ["CreateApp", "__name", "_element", "callback"]
+}
