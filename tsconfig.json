@@ -22,6 +22,7 @@
     "composite": true,
     "emitDeclarationOnly": true,
     "paths": {
+      "@/style": ["style/index.ts"],
       "@/template": ["template/index.ts"],
       "@/validators": ["validators/index.ts"],
       "@/actions": ["actions/index.ts"],

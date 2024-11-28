@@ -2,6 +2,6 @@
   "version": 3,
   "sources": ["../../../src/CreateApp/CreateApp.ts"],
   "sourcesContent": ["import type {\n  Application,\n  ContextElement,\n  ContextHandler,\n  CallbackHandler,\n} from \"./types\";\n\nexport const CreateApp = (): Application => {\n  let _element!: ContextElement;\n\n  const setup = (callback: ContextHandler) => {\n    _element = callback();\n    return callback();\n  };\n\n  const mount = (callback: CallbackHandler) => {\n    return callback(_element);\n  };\n\n  const unmount = (callback: CallbackHandler) => {\n    return callback(_element);\n  };\n\n  return { setup, mount, unmount };\n};\n"],
-  "mappings": ";;;;AAOO,IAAM,YAAY,6BAAmB;AAC1C,MAAI;AAEJ,QAAM,QAAQ,wBAAC,aAA6B;AAC1C,eAAW,SAAS;AACpB,WAAO,SAAS;AAAA,EAClB,GAHc;AAKd,QAAM,QAAQ,wBAAC,aAA8B;AAC3C,WAAO,SAAS,QAAQ;AAAA,EAC1B,GAFc;AAId,QAAM,UAAU,wBAAC,aAA8B;AAC7C,WAAO,SAAS,QAAQ;AAAA,EAC1B,GAFgB;AAIhB,SAAO,EAAE,OAAO,OAAO,QAAQ;AACjC,GAjByB;",
-  "names": []
+  "mappings": "+EAOO,IAAMA,EAAYC,EAAA,IAAmB,CAC1C,IAAIC,EAeJ,MAAO,CAAE,MAbKD,EAACE,IACbD,EAAWC,EAAS,EACbA,EAAS,GAFJ,SAaE,MARFF,EAACE,GACNA,EAASD,CAAQ,EADZ,SAQS,QAJPD,EAACE,GACRA,EAASD,CAAQ,EADV,UAIe,CACjC,EAjByB",
+  "names": ["CreateApp", "__name", "_element", "callback"]
 }

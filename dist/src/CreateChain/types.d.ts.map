@@ -1,1 +1,0 @@
-{"version":3,"file":"types.d.ts","sourceRoot":"","sources":["../../../src/CreateChain/types.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,SAAS,GAAG,MAAM,OAAO,CAAC;AACtC,MAAM,MAAM,MAAM,GAAG,MAAM,IAAI,CAAC;AAEhC,MAAM,MAAM,SAAS,GAAG;IACtB,MAAM,EAAE,MAAM,CAAC;IACf,SAAS,EAAE,SAAS,CAAC;CACtB,CAAC"}

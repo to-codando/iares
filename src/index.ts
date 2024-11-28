@@ -8,6 +8,8 @@ export type {
 
 export { createState } from "./state";
 export type {
+  CustomObject,
+  GenericObject,
   StateHandler,
   StateManager,
   State,
@@ -16,4 +18,13 @@ export type {
 
 export { render } from "./render";
 export { html, jsx, tsx } from "./template/html";
+export type {
+  Template,
+  TemplateSchema,
+  TemplateProps,
+  HTMX,
+  JSX,
+  TSX,
+} from "./template";
+
 export { css } from "./style";

@@ -1,3 +1,5 @@
+export type CustomObject<T> = { [key: string | symbol]: T };
+export type GenericObject<T = unknown> = object & T;
 export type State<T = unknown> = object & T;
 
 export type StateHandler = <T = unknown>(payload: State<T>) => void;

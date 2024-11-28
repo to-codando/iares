@@ -1,4 +1,10 @@
 export { html, jsx, tsx } from "./html";
-export { css } from "./css";
 
-export type { Template, TemplateSchema, TemplateProps } from "./types";
+export type {
+  Template,
+  TemplateSchema,
+  TemplateProps,
+  HTMX,
+  JSX,
+  TSX,
+} from "./types";

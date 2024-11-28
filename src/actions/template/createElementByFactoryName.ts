@@ -1,12 +1,9 @@
-import { render } from "@/render";
 import type { Template, TemplateSchema } from "@/template";
-import {
-  type State,
-  type StateCreator,
-  type StateHandler,
-  type StateManager,
-  createState,
-} from "@/state";
+import type { GenericObject, State, StateManager } from "@/state";
+import { createState } from "@/state";
+import { render } from "@/render";
+import { html, jsx, tsx } from "@/template";
+import { css } from "@/style";
 import { renderChildren } from "./renderChildren";
 
 type Factory = (params?: unknown) => unknown;
@@ -14,9 +11,29 @@ type Factory = (params?: unknown) => unknown;
 type StyleParams = {
   props: State;
   state: State;
+  css: typeof css;
 };
 
-type CssHandler = (params: StyleParams) => void;
+type Styles = { [key: string]: string };
+type StylesObject = GenericObject<{ [key: string]: () => string }>;
+type StyleHandlerFactory = () => StylesObject;
+type StyleHandler = (params: StyleParams) => string;
+
+type TemplateParams = {
+  props: State;
+  state: State;
+  html: typeof html;
+  jsx: typeof jsx;
+  tsx: typeof tsx;
+  styles: Styles;
+};
+
+type TemplateInjections = <T = unknown>() => GenericObject<T>;
+
+type TemplateHandler = (
+  params: TemplateParams,
+  injections: TemplateInjections,
+) => void;
 
 const _createTagByFactoryName = (factory: Factory) => {
   return factory.name
@@ -25,20 +42,53 @@ const _createTagByFactoryName = (factory: Factory) => {
     .toLowerCase();
 };
 
-const _mergeState = (state: StateManager) => {
-  const mergeState = <T>(initialState: State<T>): StateManager => {
+const _createUseState = (state: StateManager) => {
+  const currentState = {};
+  const useState = <T>(initialState: State<T>): StateManager => {
     const latestState = state.get() as State<T>;
     state.set({ ...initialState, ...latestState });
 
+    Object.assign(currentState, state.get());
     return { get: state.get, set: state.set, watch: state.watch };
   };
-  return mergeState;
+  return { currentState, useState };
 };
 
-const _createStyles = ({ props, state }: StyleParams) => {
-  return (cssHandler: CssHandler) => {
-    return cssHandler({ props, state });
+const _createUseStyle = ({ props, state, css }: StyleParams) => {
+  const stylesheet = {};
+  const useStyle = (cssHandlerFactory: StyleHandlerFactory) => {
+    const handlers = cssHandlerFactory();
+    const styles: Styles = {};
+
+    for (const key in handlers) {
+      const handler = handlers[key] as StyleHandler;
+      const style = handler({ props, state, css });
+      styles[key] = style;
+    }
+
+    Object.assign(stylesheet, styles);
+    return styles;
   };
+
+  return { styles: stylesheet, useStyle };
+};
+
+const _createUseActions = () => { };
+
+const _createUseTemplate = (params: TemplateParams) => {
+  const { props, state, html, jsx, tsx, styles } = params;
+
+  const useTemplate = (
+    templateHandler: TemplateHandler,
+    templateInjections: TemplateInjections,
+  ) => {
+    return templateHandler(
+      { props, state, html, jsx, tsx, styles },
+      templateInjections,
+    );
+  };
+
+  return useTemplate;
 };
 
 export const createElementByFactoryName = (
@@ -52,21 +102,31 @@ export const createElementByFactoryName = (
     const element = document.createElement(tagName);
     const props = template.props;
 
-    const currentState = JSON.parse(JSON.stringify(latestState));
-    const state = createState(currentState);
-    const useState = _mergeState(state);
-    const useStyles = _createStyles({ props, state });
+    const latestDeepState = JSON.parse(JSON.stringify(latestState));
+    const stateManager = createState(latestDeepState);
+    const { currentState: state, useState } = _createUseState(stateManager);
+    const { styles, useStyle } = _createUseStyle({ props, state, css });
+
+    const useTemplate = _createUseTemplate({
+      props,
+      state,
+      html,
+      jsx,
+      tsx,
+      styles,
+    });
 
     const children = factory({
       props,
       useState,
-      useStyles,
+      useStyle,
+      useTemplate,
     }) as TemplateSchema[];
 
     parentElement.insertAdjacentElement("beforeend", element);
-    renderChildren(children, element, currentState);
+    renderChildren(children, element, state);
 
-    state.watch((payload) => {
+    stateManager.watch((payload) => {
       element.innerHTML = "";
       render(template, element, payload);
     });

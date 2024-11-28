@@ -1,2 +1,9 @@
 export { createState } from "./createState";
-export type { State, StateCreator, StateManager, StateHandler } from "./types";
+export type {
+  CustomObject,
+  GenericObject,
+  State,
+  StateCreator,
+  StateManager,
+  StateHandler,
+} from "./types";
