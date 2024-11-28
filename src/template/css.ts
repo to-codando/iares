@@ -1,20 +1,34 @@
-import { escapeTemplateString, bindStyleScope } from "@/utils";
+import { createUUID } from "@/utils";
 
 export const css = (
   strings: TemplateStringsArray,
-  ...values: unknown[]
+  ...values: (string | number | (() => string | number))[]
 ): string => {
-  const scoped = !![...values].shift();
-  const scopeId = Math.random().toString(36).slice(2, 6);
+  const uniqueId = createUUID();
 
-  const styles = strings
-    .map((string, index) => {
-      const value = values[index] || {};
-      return `${string} ${value}`;
-    })
+  const processedValues = values.map((value) =>
+    typeof value === "function" ? value().toString() : value.toString(),
+  );
+
+  const rawCss = strings
+    .map((str, index) => `${str}${processedValues[index] || ""}`)
     .join("");
 
-  return escapeTemplateString(
-    scoped ? bindStyleScope(scopeId, styles) : styles,
+  const prefixedCss = rawCss.replace(
+    /([^{}]+){([^}]*)}/g,
+    (match, selectors, content) => {
+      if (selectors.trim().startsWith("@")) {
+        return match;
+      }
+
+      const prefixedSelectors = selectors
+        .split(",")
+        .map((sel: string) => `.${uniqueId}${sel.trim()}`)
+        .join(", ");
+
+      return `${prefixedSelectors} {${content}}`;
+    },
   );
+
+  return prefixedCss;
 };

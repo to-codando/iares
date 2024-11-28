@@ -16,4 +16,4 @@ export type {
 
 export { render } from "./render";
 export { html, jsx, tsx } from "./template/html";
-export { css } from "./template/css";
+export { css } from "./style";

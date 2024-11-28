@@ -9,12 +9,14 @@ export const escapeTemplateString = (templateString: string): string => {
     .replace(/\//g, "&#x2F;");
 };
 
-export const bindStyleScope = (scopeId: string, strings: string) => {
+export const bindStyleScope = (scopeId: string, strings: string): string => {
   const regex = /(\.(\w+)(\-*|\_*)?)+\w+/gi;
   return strings.replace(regex, (values) => {
     return `.${scopeId}-${values.replace(/\./, "")}`;
   });
 };
+
+export const createUUID = () => Math.random().toString(36).slice(2, 6);
 
 export const HTMLEvents = [
   // Eventos de Mouse

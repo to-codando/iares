@@ -4,5 +4,5 @@ export { createState } from "./state";
 export type { StateHandler, StateManager, State, StateCreator, } from "./state/types";
 export { render } from "./render";
 export { html, jsx, tsx } from "./template/html";
-export { css } from "./template/css";
+export { css } from "./style";
 //# sourceMappingURL=index.d.ts.map
