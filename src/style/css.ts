@@ -78,3 +78,5 @@ export const css = (
 
   return className;
 };
+
+export type TaggedStyles = typeof css;

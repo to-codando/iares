@@ -5,5 +5,5 @@ export type { CustomObject, GenericObject, StateHandler, StateManager, State, St
 export { render } from "./render";
 export { html, jsx, tsx } from "./template/html";
 export type { Template, TemplateSchema, TemplateProps, HTMX, JSX, TSX, } from "./template";
-export { css } from "./style";
+export { css, TaggedStyles } from "./style";
 //# sourceMappingURL=index.d.ts.map

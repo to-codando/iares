@@ -26,6 +26,7 @@ type TemplateParams = {
   jsx: typeof jsx;
   tsx: typeof tsx;
   styles: Styles;
+  actions: Actions;
 };
 
 type TemplateInjections = <T = unknown>() => GenericObject<T>;
@@ -34,6 +35,14 @@ type TemplateHandler = (
   params: TemplateParams,
   injections: TemplateInjections,
 ) => void;
+
+type Actions = GenericObject;
+
+type ActionParams = {
+  props: State;
+  state: StateManager;
+};
+type ActionHandlerFactory = (params: ActionParams) => GenericObject;
 
 const _createTagByFactoryName = (factory: Factory) => {
   return factory.name
@@ -73,22 +82,26 @@ const _createUseStyle = ({ props, state, css }: StyleParams) => {
   return { styles: stylesheet, useStyle };
 };
 
-const _createUseActions = () => { };
-
 const _createUseTemplate = (params: TemplateParams) => {
-  const { props, state, html, jsx, tsx, styles } = params;
-
   const useTemplate = (
     templateHandler: TemplateHandler,
     templateInjections: TemplateInjections,
   ) => {
-    return templateHandler(
-      { props, state, html, jsx, tsx, styles },
-      templateInjections,
-    );
+    return templateHandler(params, templateInjections);
   };
 
   return useTemplate;
+};
+
+const _createUseAction = ({ props, state }: ActionParams) => {
+  const actions: GenericObject = {};
+
+  const useAction = (actionHandlerFactory: ActionHandlerFactory) => {
+    const handlerActions = actionHandlerFactory({ props, state });
+    Object.assign(actions, handlerActions);
+  };
+
+  return { actions, useAction };
 };
 
 export const createElementByFactoryName = (
@@ -106,6 +119,10 @@ export const createElementByFactoryName = (
     const stateManager = createState(latestDeepState);
     const { currentState: state, useState } = _createUseState(stateManager);
     const { styles, useStyle } = _createUseStyle({ props, state, css });
+    const { actions, useAction } = _createUseAction({
+      props,
+      state: stateManager,
+    });
 
     const useTemplate = _createUseTemplate({
       props,
@@ -114,6 +131,7 @@ export const createElementByFactoryName = (
       jsx,
       tsx,
       styles,
+      actions,
     });
 
     const children = factory({
@@ -121,6 +139,7 @@ export const createElementByFactoryName = (
       useState,
       useStyle,
       useTemplate,
+      useAction,
     }) as TemplateSchema[];
 
     parentElement.insertAdjacentElement("beforeend", element);

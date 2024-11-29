@@ -27,4 +27,4 @@ export type {
   TSX,
 } from "./template";
 
-export { css } from "./style";
+export { css, TaggedStyles } from "./style";

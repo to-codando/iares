@@ -7,4 +7,5 @@
  * @returns Nome da classe gerada.
  */
 export declare const css: (strings: TemplateStringsArray, ...interpolations: (string | number)[]) => string;
+export type TaggedStyles = typeof css;
 //# sourceMappingURL=css.d.ts.map
