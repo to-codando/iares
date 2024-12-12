@@ -10,10 +10,10 @@ export type TemplateSchema<T = unknown> = {
   children: TemplateSchema[];
 };
 
-export type Template = TemplateSchema | TemplateSchema[];
+export type TaggedTemplate = TemplateSchema | TemplateSchema[];
 
-export type HTMX = ReturnType<typeof htm.bind<Template>>;
+export type HTMX = ReturnType<typeof htm.bind<TaggedTemplate>>;
 
-export type JSX = ReturnType<typeof htm.bind<Template>>;
+export type JSX = ReturnType<typeof htm.bind<TaggedTemplate>>;
 
-export type TSX = ReturnType<typeof htm.bind<Template>>;
+export type TSX = ReturnType<typeof htm.bind<TaggedTemplate>>;

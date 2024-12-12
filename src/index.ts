@@ -19,7 +19,7 @@ export type {
 export { render } from "./render";
 export { html, jsx, tsx } from "./template/html";
 export type {
-  Template,
+  TaggedTemplate,
   TemplateSchema,
   TemplateProps,
   HTMX,
@@ -27,4 +27,4 @@ export type {
   TSX,
 } from "./template";
 
-export { css, TaggedStyles } from "./style";
+export { css, TaggedStyle } from "./style";

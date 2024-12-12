@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/actions/template/renderTemplateData.ts"],
+  "sourcesContent": ["import { render } from \"@/render\";\nimport type { TemplateSchema, TaggedTemplate } from \"@/types\";\nimport type { State } from \"@/state\";\n\nexport const renderTemplateData =\n  (templateData: TaggedTemplate, element: Element, state: State = {}) =>\n    () => {\n      if (typeof templateData === \"string\") {\n        element.insertAdjacentHTML(\"beforeend\", templateData);\n      }\n\n      if (typeof templateData === \"number\") {\n        const data = Number(templateData);\n        const value = data.toString();\n        element.insertAdjacentHTML(\"beforeend\", value);\n      }\n    };\n"],
+  "mappings": "+EAIO,IAAMA,EACXC,EAAA,CAACC,EAA8BC,EAAkBC,EAAe,CAAC,IAC/D,IAAM,CAKJ,GAJI,OAAOF,GAAiB,UAC1BC,EAAQ,mBAAmB,YAAaD,CAAY,EAGlD,OAAOA,GAAiB,SAAU,CAEpC,IAAMG,EADO,OAAOH,CAAY,EACb,SAAS,EAC5BC,EAAQ,mBAAmB,YAAaE,CAAK,CAC/C,CACF,EAXF",
+  "names": ["renderTemplateData", "__name", "templateData", "element", "state", "value"]
+}

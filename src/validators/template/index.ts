@@ -31,4 +31,10 @@ const isEventName =
       return HTMLEvents.includes(payload.toLowerCase());
     };
 
-export { isObject, isArray, isFunction, isString, isEventName };
+const isTemplateData =
+  <T = void>(payload: T) =>
+    () => {
+      return typeof payload === "string" || typeof payload === "number";
+    };
+
+export { isObject, isArray, isFunction, isString, isEventName, isTemplateData };

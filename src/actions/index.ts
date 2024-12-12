@@ -1,4 +1,5 @@
 export {
+  renderTemplateData,
   renderTemplateArray,
   renderTemplateObject,
   renderChildren,

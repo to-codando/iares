@@ -1,2 +1,2 @@
-export { Template, TemplateSchema, TemplateProps } from "@/template";
+export { TaggedTemplate, TemplateSchema, TemplateProps } from "@/template";
 export { Validator } from "@/validators";

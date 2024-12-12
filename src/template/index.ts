@@ -1,7 +1,7 @@
 export { html, jsx, tsx } from "./html";
 
 export type {
-  Template,
+  TaggedTemplate,
   TemplateSchema,
   TemplateProps,
   HTMX,

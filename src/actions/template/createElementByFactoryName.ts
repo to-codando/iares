@@ -1,4 +1,4 @@
-import type { Template, TemplateSchema } from "@/template";
+import type { TemplateSchema } from "@/template";
 import type { GenericObject, State, StateManager } from "@/state";
 import { createState } from "@/state";
 import { render } from "@/render";

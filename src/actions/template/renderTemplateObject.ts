@@ -1,15 +1,8 @@
 import type { TemplateSchema } from "@/types";
 import { createChain } from "@/factories";
-import {
-  createElementByFactoryName,
-  createElementByTagName,
-  renderChildren,
-  setElementAttributes,
-} from "@/actions";
+import { createElementByFactoryName, createElementByTagName } from "@/actions";
 import { isFunction, isString } from "@/validators";
 import type { State } from "@/state";
-
-type Factory = (params?: unknown) => unknown;
 
 export const renderTemplateObject =
   (template: TemplateSchema, contextElement: Element, state: State = {}) =>

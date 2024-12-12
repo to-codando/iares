@@ -8,8 +8,8 @@ export const createElementByTagName =
     () => {
       const tagName = template.type as string;
       const element = document.createElement(tagName);
-      setElementAttributes(element, template.props);
 
+      setElementAttributes(element, template.props);
       parentElement.insertAdjacentElement("beforeend", element);
       renderChildren(template.children, element, state);
     };

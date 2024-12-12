@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../src/style/createHash.ts"],
-  "sourcesContent": ["export const createHash = (str: string): string => {\n  let hash = 5381;\n  for (let i = 0; i < str.length; i++) {\n    hash = (hash * 33) ^ str.charCodeAt(i);\n  }\n  return `css-${(hash >>> 0).toString(36)}`;\n};\n"],
-  "mappings": "+EAAO,IAAMA,EAAaC,EAACC,GAAwB,CACjD,IAAIC,EAAO,KACX,QAASC,EAAI,EAAGA,EAAIF,EAAI,OAAQE,IAC9BD,EAAQA,EAAO,GAAMD,EAAI,WAAWE,CAAC,EAEvC,MAAO,QAAQD,IAAS,GAAG,SAAS,EAAE,CAAC,EACzC,EAN0B",
+  "sourcesContent": ["/**\n * Gera um hash \u00FAnico baseado no algoritmo DJB2.\n * @param str - O conte\u00FAdo a partir do qual o hash ser\u00E1 gerado.\n * @returns O hash gerado como uma string.\n */\nexport const createHash = (str: string): string => {\n  let hash = 5381;\n  for (let i = 0; i < str.length; i++) {\n    hash = (hash * 33) ^ str.charCodeAt(i);\n  }\n  return `css-${(hash >>> 0).toString(36)}`;\n};\n"],
+  "mappings": "+EAKO,IAAMA,EAAaC,EAACC,GAAwB,CACjD,IAAIC,EAAO,KACX,QAASC,EAAI,EAAGA,EAAIF,EAAI,OAAQE,IAC9BD,EAAQA,EAAO,GAAMD,EAAI,WAAWE,CAAC,EAEvC,MAAO,QAAQD,IAAS,GAAG,SAAS,EAAE,CAAC,EACzC,EAN0B",
   "names": ["createHash", "__name", "str", "hash", "i"]
 }

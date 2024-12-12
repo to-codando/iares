@@ -6,3 +6,4 @@ export { createElementByFactoryName } from "./createElementByFactoryName";
 export { createElementByTagName } from "./createElementByTagName";
 
 export { setElementAttributes } from "./setElementAttributes";
+export { renderTemplateData } from "./renderTemplateData";
