@@ -10,7 +10,8 @@ export { createState } from "./state";
 export type {
   CustomObject,
   GenericObject,
-  StateHandler,
+  StateWatcher,
+  StateWatcherParams,
   StateManager,
   State,
   StateCreator,

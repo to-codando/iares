@@ -1,62 +1,67 @@
 export const createScopeStyle = (str: string): string => {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 33) ^ str.charCodeAt(i);
-  }
-  return `css-${(hash >>> 0).toString(36)}`;
+  const hashResult = [...str].reduce(
+    (hash, char) => (hash * 33) ^ char.charCodeAt(0),
+    5381,
+  );
+  return `css-${(hashResult >>> 0).toString(36)}`;
 };
 
 // Função que processa CSS aplicando escopo
-const processCSS = (inputCss: string, className: string): string => {
-  let css = inputCss; // Cópia para evitar reatribuição direta de parâmetros
-  css = css.replace(/&/g, `.${className}`);
+const processCSS = (css: string, className: string): string => {
+  const substituteScope = (inputCss: string): string =>
+    inputCss.replace(/&/g, `.${className}`);
 
-  // Envolve regras soltas dentro de um bloco da classe
-  const wrappedCSS = css.replace(/(?:^|\})([^{]+;)/g, (match, decl) => {
-    return `.${className} {${decl.trim()}}`;
-  });
+  const wrapLooseRules = (scopedCss: string): string =>
+    scopedCss.replace(
+      /(?:^|\})([^{]+;)/g,
+      (_, decl) => `.${className} {${decl.trim()}}`,
+    );
 
-  return wrappedCSS.replace(/([^{]+\{)/g, (match, selectorBlock) => {
-    if (selectorBlock.includes("@")) return match; // Mantém media queries intactas
-    const scopedSelector = selectorBlock.includes(className)
-      ? selectorBlock
-      : `.${className} ${selectorBlock.trim()}`;
-    return `${scopedSelector} `;
-  });
+  const scopeSelectors = (wrappedCss: string): string =>
+    wrappedCss.replace(/([^{]+\{)/g, (match, selectorBlock) => {
+      if (selectorBlock.includes("@")) return match; // Manter media queries intactas
+      const scopedSelector = selectorBlock.includes(className)
+        ? selectorBlock
+        : `.${className} ${selectorBlock.trim()}`;
+      return `${scopedSelector} `;
+    });
+
+  return scopeSelectors(wrapLooseRules(substituteScope(css)));
 };
 
 export const transpile = (css: string, className: string): string => {
-  const mediaQueryRegex = /(@media[^{]+\{)([\s\S]+?})\s*}/gm;
-  const keyframeRegex = /(@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\}\s*)*?\})/gm;
+  const mediaQueryRegex = /(@media[^{]+\{)([\s\S]+?})\s*}/g;
+  const keyframeRegex = /(@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\}\s*)*?\})/g;
 
-  let processedCSS = css;
+  const extractKeyframes = (inputCss: string): [string, string[]] => {
+    const keyframes: string[] = [];
+    const newCss = inputCss.replace(keyframeRegex, (match) => {
+      keyframes.push(match);
+      return "";
+    });
+    return [newCss, keyframes];
+  };
 
-  const keyframeMatches: string[] = [];
-  let keyframeMatch: RegExpExecArray | null;
-  while ((keyframeMatch = keyframeRegex.exec(css)) !== null) {
-    if (keyframeMatch) {
-      keyframeMatches.push(keyframeMatch[0]);
-      processedCSS = processedCSS.replace(keyframeMatch[0], "");
-    }
-  }
+  const [cssWithoutKeyframes, keyframes] = extractKeyframes(css);
 
-  const matchedQueries: string[] = [];
-  let matchArray: RegExpExecArray | null;
-  matchArray = mediaQueryRegex.exec(processedCSS);
-  while (matchArray !== null) {
-    if (matchArray) {
-      const mediaQueryContent = processCSS(matchArray[2].trim(), className);
-      matchedQueries.push(`${matchArray[1]}\n  ${mediaQueryContent}\n}`);
-      processedCSS = processedCSS.replace(matchArray[0], "");
-    }
-    matchArray = mediaQueryRegex.exec(processedCSS);
-  }
+  const processMediaQueries = (inputCss: string): [string, string[]] => {
+    const queries: string[] = [];
+    const remainingCss = inputCss.replace(mediaQueryRegex, (_, p1, p2) => {
+      const scopedContent = processCSS(p2.trim(), className);
+      queries.push(`${p1}\n  ${scopedContent}\n}`);
+      return "";
+    });
+    return [remainingCss, queries];
+  };
 
-  processedCSS = processCSS(processedCSS.trim(), className);
+  const [cssWithoutMediaQueries, mediaQueries] =
+    processMediaQueries(cssWithoutKeyframes);
 
-  // Adiciona keyframes sem escopo
-  const allCSS =
-    `${processedCSS}\n${matchedQueries.join("\n")}\n${keyframeMatches.join("\n")}`.trim();
+  const processedCss = processCSS(cssWithoutMediaQueries.trim(), className);
 
-  return allCSS;
+  const finalCss = [processedCss, ...mediaQueries, ...keyframes]
+    .filter(Boolean)
+    .join("\n");
+
+  return finalCss;
 };

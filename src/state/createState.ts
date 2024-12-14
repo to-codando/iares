@@ -1,15 +1,16 @@
-import type { StateHandler, State, StateManager } from "./types";
+import type { StateWatcher, State, StateManager } from "./types";
 
 const _createUUID = (): string => Math.random().toString(36).substring(2, 11);
 
-export const createState = <S>(initialState: State<S>): StateManager<S> => {
+export const createState = <S = unknown>(
+  initialState: State<S>,
+): StateManager<S> => {
   const _state = JSON.parse(JSON.stringify(initialState));
-  const _handlers = new Set<StateHandler>();
-  const _id: Readonly<string> = _createUUID();
+  const _watchers = new Set<StateWatcher<S>>();
 
   const _notifyHandlers = (payload: State<S>) => {
-    for (const stateHandler of _handlers) {
-      stateHandler<S>(payload);
+    for (const stateWatcher of _watchers) {
+      stateWatcher(payload);
     }
   };
 
@@ -22,8 +23,8 @@ export const createState = <S>(initialState: State<S>): StateManager<S> => {
     return JSON.parse(JSON.stringify(_state));
   };
 
-  const watch = (callback: StateHandler) => {
-    _handlers.add(callback);
+  const watch = (callback: StateWatcher<S>) => {
+    _watchers.add(callback);
   };
 
   return { set, get, watch };

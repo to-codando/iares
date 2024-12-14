@@ -5,5 +5,6 @@ export type {
   State,
   StateCreator,
   StateManager,
-  StateHandler,
+  StateWatcher,
+  StateWatcherParams,
 } from "./types";
