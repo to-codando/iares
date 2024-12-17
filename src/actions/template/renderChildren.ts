@@ -4,15 +4,16 @@ import type { State } from "@/state";
 
 export const renderChildren = (
   children: TemplateSchema[],
-  element: Element,
+  parentElement: Element,
   state: State = {},
 ) => {
+  parentElement.innerHTML = "";
   if (!Array.isArray(children) && typeof children === "object") {
-    render(children, element, state);
+    render(children, parentElement, state);
     return;
   }
 
   for (const child of children) {
-    render(child, element, state);
+    render(child, parentElement, state);
   }
 };

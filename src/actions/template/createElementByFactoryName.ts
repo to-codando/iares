@@ -11,7 +11,7 @@ type Factory = (params?: unknown) => unknown;
 type StyleParams = {
   props: State;
   state: State;
-  css: typeof css;
+  css: ReturnType<typeof css>;
 };
 
 type Styles = { [key: string]: string };
@@ -112,13 +112,15 @@ export const createElementByFactoryName = (
   return () => {
     const factory = template.type as Factory;
     const tagName = _createTagByFactoryName(factory);
+    const selector = tagName.toLowerCase();
     const element = document.createElement(tagName);
     const props = template.props;
 
     const latestDeepState = JSON.parse(JSON.stringify(latestState));
     const stateManager = createState(latestDeepState);
     const { currentState: state, useState } = _createUseState(stateManager);
-    const { styles, useStyle } = _createUseStyle({ props, state, css });
+    const styled = css(selector);
+    const { styles, useStyle } = _createUseStyle({ props, state, css: styled });
     const { actions, useAction } = _createUseAction({
       props,
       state: stateManager,
@@ -142,12 +144,17 @@ export const createElementByFactoryName = (
       useAction,
     }) as TemplateSchema[];
 
-    parentElement.insertAdjacentElement("beforeend", element);
+    const oldElement = parentElement.querySelector(selector) as Element;
+    //oldElement?.remove?.();
+    oldElement
+      ? oldElement.replaceWith(element)
+      : parentElement.insertAdjacentElement("beforeend", element);
+
     renderChildren(children, element, state);
 
     stateManager.watch((payload) => {
       element.innerHTML = "";
-      render(template, element, payload);
+      render(template, parentElement, payload);
     });
   };
 };
