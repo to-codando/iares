@@ -3,10 +3,10 @@
  * @param str - O conteúdo a partir do qual o hash será gerado.
  * @returns O hash gerado como uma string.
  */
-export const createHash = (str: string): string => {
+export const createHash = (text: string, selector: string): string => {
   let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 33) ^ str.charCodeAt(i);
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash * 33) ^ text.charCodeAt(i);
   }
-  return `css-${(hash >>> 0).toString(36)}`;
+  return `${selector}-${(hash >>> 0).toString(36)}`;
 };

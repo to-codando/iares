@@ -1,67 +1,131 @@
-export const createScopeStyle = (str: string): string => {
-  const hashResult = [...str].reduce(
-    (hash, char) => (hash * 33) ^ char.charCodeAt(0),
-    5381,
-  );
-  return `css-${(hashResult >>> 0).toString(36)}`;
-};
+interface WrapStyleParams {
+  style: string;
+  selector: string;
+}
 
-// Função que processa CSS aplicando escopo
-const processCSS = (css: string, className: string): string => {
-  const substituteScope = (inputCss: string): string =>
-    inputCss.replace(/&/g, `.${className}`);
+const wrapLooseRulesOutsideMediaQuery = ({
+  style,
+  selector,
+}: WrapStyleParams): string => {
+  const lines = style.split("\n");
+  const ruleRegex = /^\s*([\w-]+)\s*:\s*[^;]+;/;
 
-  const wrapLooseRules = (scopedCss: string): string =>
-    scopedCss.replace(
-      /(?:^|\})([^{]+;)/g,
-      (_, decl) => `.${className} {${decl.trim()}}`,
-    );
+  interface Accumulator {
+    insideBlock: number;
+    globalRules: string;
+    result: string;
+  }
 
-  const scopeSelectors = (wrappedCss: string): string =>
-    wrappedCss.replace(/([^{]+\{)/g, (match, selectorBlock) => {
-      if (selectorBlock.includes("@")) return match; // Manter media queries intactas
-      const scopedSelector = selectorBlock.includes(className)
-        ? selectorBlock
-        : `.${className} ${selectorBlock.trim()}`;
-      return `${scopedSelector} `;
-    });
+  interface LineProcessing {
+    globalRules: string;
+    result: string;
+  }
 
-  return scopeSelectors(wrapLooseRules(substituteScope(css)));
-};
-
-export const transpile = (css: string, className: string): string => {
-  const mediaQueryRegex = /(@media[^{]+\{)([\s\S]+?})\s*}/g;
-  const keyframeRegex = /(@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\}\s*)*?\})/g;
-
-  const extractKeyframes = (inputCss: string): [string, string[]] => {
-    const keyframes: string[] = [];
-    const newCss = inputCss.replace(keyframeRegex, (match) => {
-      keyframes.push(match);
-      return "";
-    });
-    return [newCss, keyframes];
+  const initialState: Accumulator = {
+    insideBlock: 0,
+    globalRules: "",
+    result: "",
   };
 
-  const [cssWithoutKeyframes, keyframes] = extractKeyframes(css);
+  const processGlobalRules = (
+    globalRules: string,
+    result: string,
+    selector: string,
+  ): LineProcessing => ({
+    globalRules: "",
+    result: `${result}${selector} {\n${globalRules}}\n\n`,
+  });
 
-  const processMediaQueries = (inputCss: string): [string, string[]] => {
-    const queries: string[] = [];
-    const remainingCss = inputCss.replace(mediaQueryRegex, (_, p1, p2) => {
-      const scopedContent = processCSS(p2.trim(), className);
-      queries.push(`${p1}\n  ${scopedContent}\n}`);
-      return "";
-    });
-    return [remainingCss, queries];
+  const processRegularLine = (
+    line: string,
+    result: string,
+  ): LineProcessing => ({
+    globalRules: "",
+    result: `${result}${line}\n`,
+  });
+
+  const addGlobalRule = (
+    line: string,
+    globalRules: string,
+  ): LineProcessing => ({
+    globalRules: `${globalRules}${line}\n`,
+    result: "",
+  });
+
+  const countBlocks = (line: string): number => {
+    const openings = (line.match(/{/g) || []).length;
+    const closings = (line.match(/}/g) || []).length;
+    return openings - closings;
   };
 
-  const [cssWithoutMediaQueries, mediaQueries] =
-    processMediaQueries(cssWithoutKeyframes);
+  const processLine = (acc: Accumulator, line: string): Accumulator => {
+    acc.insideBlock += countBlocks(line);
 
-  const processedCss = processCSS(cssWithoutMediaQueries.trim(), className);
+    // Case 1: Line is a global rule
+    if (acc.insideBlock === 0 && ruleRegex.test(line)) {
+      const { globalRules, result } = addGlobalRule(line, acc.globalRules);
+      return { ...acc, globalRules, result: acc.result + result };
+    }
 
-  const finalCss = [processedCss, ...mediaQueries, ...keyframes]
-    .filter(Boolean)
-    .join("\n");
+    // Case 2: There are accumulated global rules
+    if (acc.globalRules) {
+      const { globalRules, result } = processGlobalRules(
+        acc.globalRules,
+        acc.result,
+        selector,
+      );
+      const processedLine = processRegularLine(line, "");
+      return {
+        ...acc,
+        globalRules,
+        result: result + processedLine.result,
+      };
+    }
 
-  return finalCss;
+    // Case 3: Regular line
+    const { globalRules, result } = processRegularLine(line, acc.result);
+    return { ...acc, globalRules, result };
+  };
+
+  const { result, globalRules } = lines.reduce(processLine, initialState);
+
+  return globalRules
+    ? `${result}${selector} {\n${globalRules}}\n`.trim()
+    : result.trim();
+};
+
+const wrapLooseRulesInsideMediaQuery = ({
+  style,
+  selector,
+}: WrapStyleParams): string => {
+  const regex = /@media\s*([^{]+)\s*\{([\s\S]*?)\}/g;
+
+  return style.replace(regex, (match, mediaQuery, innerCss) => {
+    const rules = innerCss
+      .trim()
+      .split("\n")
+      .map((line: string) => line.trim())
+      .filter((line: string) => line);
+
+    const wrappedRules = rules
+      .map((rule: string) => `    ${selector} {\n        ${rule.trim()}\n    }`)
+      .join("\n");
+
+    return `@media ${mediaQuery.trim()} {\n${wrappedRules}\n}`;
+  });
+};
+
+const applyClassNameScope = ({ style, selector }: WrapStyleParams): string => {
+  const regex = /\.(\w+)/g;
+  return style.replace(regex, `.${selector}_$1`);
+};
+
+export const transformStyle = (rawStyle: string, selector: string): string => {
+  let style = rawStyle;
+  const className = `.${selector}`;
+  style = applyClassNameScope({ style, selector });
+  style = wrapLooseRulesOutsideMediaQuery({ style, selector: className });
+  style = wrapLooseRulesInsideMediaQuery({ style, selector: className });
+
+  return style;
 };

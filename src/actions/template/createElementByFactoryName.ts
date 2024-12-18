@@ -5,6 +5,7 @@ import { render } from "@/render";
 import { html, jsx, tsx } from "@/template";
 import { css } from "@/style";
 import { renderChildren } from "./renderChildren";
+import { setElementAttributes } from "./setElementAttributes";
 
 type Factory = (params?: unknown) => unknown;
 
@@ -43,6 +44,12 @@ type ActionParams = {
   state: StateManager;
 };
 type ActionHandlerFactory = (params: ActionParams) => GenericObject;
+
+type Attribute = object & {
+  [key: symbol | string]: unknown;
+};
+
+const _attributes = {};
 
 const _createTagByFactoryName = (factory: Factory) => {
   return factory.name
@@ -114,12 +121,15 @@ export const createElementByFactoryName = (
     const tagName = _createTagByFactoryName(factory);
     const selector = tagName.toLowerCase();
     const element = document.createElement(tagName);
-    const props = template.props;
 
+    const props = template.props;
     const latestDeepState = JSON.parse(JSON.stringify(latestState));
     const stateManager = createState(latestDeepState);
     const { currentState: state, useState } = _createUseState(stateManager);
-    const styled = css(selector);
+    const styled = css(selector, ({ hashId }) => {
+      element.classList.add(hashId);
+      Object.assign(_attributes, { class: hashId });
+    });
     const { styles, useStyle } = _createUseStyle({ props, state, css: styled });
     const { actions, useAction } = _createUseAction({
       props,
@@ -145,7 +155,8 @@ export const createElementByFactoryName = (
     }) as TemplateSchema[];
 
     const oldElement = parentElement.querySelector(selector) as Element;
-    //oldElement?.remove?.();
+    setElementAttributes(element, _attributes);
+
     oldElement
       ? oldElement.replaceWith(element)
       : parentElement.insertAdjacentElement("beforeend", element);
