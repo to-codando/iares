@@ -3,23 +3,23 @@ interface WrapStyleParams {
   selector: string;
 }
 
+interface Accumulator {
+  insideBlock: number;
+  globalRules: string;
+  result: string;
+}
+
+interface LineProcessing {
+  globalRules: string;
+  result: string;
+}
+
 const wrapLooseRulesOutsideMediaQuery = ({
   style,
   selector,
 }: WrapStyleParams): string => {
   const lines = style.split("\n");
   const ruleRegex = /^\s*([\w-]+)\s*:\s*[^;]+;/;
-
-  interface Accumulator {
-    insideBlock: number;
-    globalRules: string;
-    result: string;
-  }
-
-  interface LineProcessing {
-    globalRules: string;
-    result: string;
-  }
 
   const initialState: Accumulator = {
     insideBlock: 0,
@@ -99,6 +99,7 @@ const wrapLooseRulesInsideMediaQuery = ({
   selector,
 }: WrapStyleParams): string => {
   const regex = /@media\s*([^{]+)\s*\{([\s\S]*?)\}/g;
+  const ruleRegex = /^\s*([\w-]+)\s*:\s*[^;]+;/;
 
   return style.replace(regex, (match, mediaQuery, innerCss) => {
     const rules = innerCss
@@ -108,7 +109,8 @@ const wrapLooseRulesInsideMediaQuery = ({
       .filter((line: string) => line);
 
     const wrappedRules = rules
-      .map((rule: string) => `    ${selector} {\n        ${rule.trim()}\n    }`)
+      .filter((rule: string) => ruleRegex.test(rule))
+      .map((rule: string) => `${selector} {\n${rule.trim()}\n}`)
       .join("\n");
 
     return `@media ${mediaQuery.trim()} {\n${wrappedRules}\n}`;
