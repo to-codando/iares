@@ -1,4 +1,4 @@
-export type ContextElement = Element;
+export type ContextElement = HTMLElement;
 export type ContextHandler = () => ContextElement;
 export type CallbackHandler = (context: ContextElement) => ContextElement;
 export type Application = {

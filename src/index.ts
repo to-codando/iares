@@ -29,3 +29,6 @@ export type {
 } from "./template";
 
 export { css, TaggedStyle } from "./style";
+
+export { router } from "./router";
+export type { Route, Router, Mount, MountParams } from "./router/types";
