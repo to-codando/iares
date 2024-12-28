@@ -2,6 +2,6 @@
   "version": 3,
   "sources": ["../../../src/style/createStyleElement.ts"],
   "sourcesContent": ["const styleElementCache: Map<string, HTMLStyleElement> = new Map();\n\nexport const createStyleElement = (componentId: string): HTMLStyleElement => {\n  const styleElement = styleElementCache.get(componentId);\n\n  if (styleElement !== undefined) {\n    return styleElement;\n  }\n\n  const style = document.createElement(\"style\");\n  style.setAttribute(\"data-component\", componentId);\n  document.head.appendChild(style);\n  styleElementCache.set(componentId, style);\n\n  return style;\n};\n"],
-  "mappings": "+EAAA,IAAMA,EAAmD,IAAI,IAEhDC,EAAqBC,EAACC,GAA0C,CAC3E,IAAMC,EAAeJ,EAAkB,IAAIG,CAAW,EAEtD,GAAIC,IAAiB,OACnB,OAAOA,EAGT,IAAMC,EAAQ,SAAS,cAAc,OAAO,EAC5C,OAAAA,EAAM,aAAa,iBAAkBF,CAAW,EAChD,SAAS,KAAK,YAAYE,CAAK,EAC/BL,EAAkB,IAAIG,EAAaE,CAAK,EAEjCA,CACT,EAbkC",
-  "names": ["styleElementCache", "createStyleElement", "__name", "componentId", "styleElement", "style"]
+  "mappings": ";;;;AAAA,IAAM,oBAAmD,oBAAI,IAAI;AAE1D,IAAM,qBAAqB,wBAAC,gBAA0C;AAC3E,QAAM,eAAe,kBAAkB,IAAI,WAAW;AAEtD,MAAI,iBAAiB,QAAW;AAC9B,WAAO;AAAA,EACT;AAEA,QAAM,QAAQ,SAAS,cAAc,OAAO;AAC5C,QAAM,aAAa,kBAAkB,WAAW;AAChD,WAAS,KAAK,YAAY,KAAK;AAC/B,oBAAkB,IAAI,aAAa,KAAK;AAExC,SAAO;AACT,GAbkC;",
+  "names": []
 }

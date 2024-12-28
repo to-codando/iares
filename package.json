@@ -5,7 +5,8 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "dev": "pnpm app:build && pnpm app:watch",
+    "dev": "cross-env NODE_ENV=development && pnpm app:build && pnpm app:watch",
+    "prod": "cross-env NODE_ENV=production && pnpm app:build",
     "app:build": "tsc --emitDeclarationOnly && bun build.config.ts",
     "app:watch": "run-when-changed --watch './src/**' --exec 'pnpm app:build'",
     "test": "echo \"Error: no test specified\" && exit 1"

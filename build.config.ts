@@ -1,11 +1,7 @@
 //import "dotenv/config";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { type BuildOptions, build, context } from "esbuild";
-import Bun from "bun";
+import { type BuildOptions, build } from "esbuild";
 
 import {
-  ToCopy,
   AliasResolver,
   onRebuild,
   resolveEnvironment,
@@ -14,10 +10,7 @@ import {
 
 import { getFiles } from "./config/utils.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const isProductionMode = true; //process.env.ENVIRONMENT === "production";
+const isProductionMode = process.env.ENVIRONMENT === "production";
 const SOURCES = await getFiles(["./src/**/*.{js,jsx,ts,tsx,mdx}"]);
 
 const config: BuildOptions = {

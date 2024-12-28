@@ -2,6 +2,6 @@
   "version": 3,
   "sources": ["../../../src/style/createHash.ts"],
   "sourcesContent": ["/**\n * Gera um hash \u00FAnico baseado no algoritmo DJB2.\n * @param str - O conte\u00FAdo a partir do qual o hash ser\u00E1 gerado.\n * @returns O hash gerado como uma string.\n */\nexport const createHash = (text: string, selector: string): string => {\n  let hash = 5381;\n  for (let i = 0; i < text.length; i++) {\n    hash = (hash * 33) ^ text.charCodeAt(i);\n  }\n  return `${selector}-${(hash >>> 0).toString(36)}`;\n};\n"],
-  "mappings": "+EAKO,IAAMA,EAAaC,EAAA,CAACC,EAAcC,IAA6B,CACpE,IAAIC,EAAO,KACX,QAASC,EAAI,EAAGA,EAAIH,EAAK,OAAQG,IAC/BD,EAAQA,EAAO,GAAMF,EAAK,WAAWG,CAAC,EAExC,MAAO,GAAGF,CAAQ,KAAKC,IAAS,GAAG,SAAS,EAAE,CAAC,EACjD,EAN0B",
-  "names": ["createHash", "__name", "text", "selector", "hash", "i"]
+  "mappings": ";;;;AAKO,IAAM,aAAa,wBAAC,MAAc,aAA6B;AACpE,MAAI,OAAO;AACX,WAAS,IAAI,GAAG,IAAI,KAAK,QAAQ,KAAK;AACpC,WAAQ,OAAO,KAAM,KAAK,WAAW,CAAC;AAAA,EACxC;AACA,SAAO,GAAG,QAAQ,KAAK,SAAS,GAAG,SAAS,EAAE,CAAC;AACjD,GAN0B;",
+  "names": []
 }

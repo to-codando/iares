@@ -2,6 +2,6 @@
   "version": 3,
   "sources": ["../../../src/factories/createChain/index.ts"],
   "sourcesContent": ["import type { ChainLink } from \"./types\";\n\nexport const createChain = () => {\n  const _chain = new Set<ChainLink<unknown>>();\n\n  const add = <T>(chainLink: ChainLink<T>) => {\n    _chain.add(chainLink);\n  };\n\n  const execute = () => {\n    for (const { action, validator } of _chain) {\n      if (validator()) action();\n    }\n  };\n\n  return { add, execute };\n};\n"],
-  "mappings": "+EAEO,IAAMA,EAAcC,EAAA,IAAM,CAC/B,IAAMC,EAAS,IAAI,IAYnB,MAAO,CAAE,IAVGD,EAAIE,GAA4B,CAC1CD,EAAO,IAAIC,CAAS,CACtB,EAFY,OAUE,QANEF,EAAA,IAAM,CACpB,OAAW,CAAE,OAAAG,EAAQ,UAAAC,CAAU,IAAKH,EAC9BG,EAAU,GAAGD,EAAO,CAE5B,EAJgB,UAMM,CACxB,EAd2B",
-  "names": ["createChain", "__name", "_chain", "chainLink", "action", "validator"]
+  "mappings": ";;;;AAEO,IAAM,cAAc,6BAAM;AAC/B,QAAM,SAAS,oBAAI,IAAwB;AAE3C,QAAM,MAAM,wBAAI,cAA4B;AAC1C,WAAO,IAAI,SAAS;AAAA,EACtB,GAFY;AAIZ,QAAM,UAAU,6BAAM;AACpB,eAAW,EAAE,QAAQ,UAAU,KAAK,QAAQ;AAC1C,UAAI,UAAU,EAAG,QAAO;AAAA,IAC1B;AAAA,EACF,GAJgB;AAMhB,SAAO,EAAE,KAAK,QAAQ;AACxB,GAd2B;",
+  "names": []
 }
