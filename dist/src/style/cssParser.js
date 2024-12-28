@@ -1,16 +1,16 @@
-var f=Object.defineProperty;var n=(l,r)=>f(l,"name",{value:r,configurable:!0});var P=n(({style:l,selector:r})=>{let e=l.split(`
-`),i=/^\s*([\w-]+)\s*:\s*[^;]+;/,R={insideBlock:0,globalRules:"",result:""},a=n((s,t,u)=>({globalRules:"",result:`${t}${u} {
+var P=Object.defineProperty;var l=(n,r)=>P(n,"name",{value:r,configurable:!0});var S=l(({style:n,selector:r})=>{let t=n.split(`
+`),i=/^\s*([\w-]+)\s*:\s*[^;]+;/,R={insideBlock:0,globalRules:"",result:""},a=l((s,e,u)=>({globalRules:"",result:`${e}${u} {
 ${s}}
 
-`}),"processGlobalRules"),g=n((s,t)=>({globalRules:"",result:`${t}${s}
-`}),"processRegularLine"),b=n((s,t)=>({globalRules:`${t}${s}
-`,result:""}),"addGlobalRule"),c=n(s=>{let t=(s.match(/{/g)||[]).length,u=(s.match(/}/g)||[]).length;return t-u},"countBlocks"),o=n((s,t)=>{if(s.insideBlock+=c(t),s.insideBlock===0&&i.test(t)){let{globalRules:m,result:p}=b(t,s.globalRules);return{...s,globalRules:m,result:s.result+p}}if(s.globalRules){let{globalRules:m,result:p}=a(s.globalRules,s.result,r),L=g(t,"");return{...s,globalRules:m,result:p+L.result}}let{globalRules:u,result:y}=g(t,s.result);return{...s,globalRules:u,result:y}},"processLine"),{result:$,globalRules:d}=e.reduce(o,R);return d?`${$}${r} {
+`}),"processGlobalRules"),g=l((s,e)=>({globalRules:"",result:`${e}${s}
+`}),"processRegularLine"),b=l((s,e)=>({globalRules:`${e}${s}
+`,result:""}),"addGlobalRule"),c=l(s=>{let e=(s.match(/{/g)||[]).length,u=(s.match(/}/g)||[]).length;return e-u},"countBlocks"),o=l((s,e)=>{if(s.insideBlock+=c(e),s.insideBlock===0&&i.test(e)){let{globalRules:m,result:p}=b(e,s.globalRules);return{...s,globalRules:m,result:s.result+p}}if(s.globalRules){let{globalRules:m,result:p}=a(s.globalRules,s.result,r),L=g(e,"");return{...s,globalRules:m,result:p+L.result}}let{globalRules:u,result:y}=g(e,s.result);return{...s,globalRules:u,result:y}},"processLine"),{result:$,globalRules:d}=t.reduce(o,R);return d?`${$}${r} {
 ${d}}
-`.trim():$.trim()},"wrapLooseRulesOutsideMediaQuery"),S=n(({style:l,selector:r})=>{let e=/@media\s*([^{]+)\s*\{([\s\S]*?)\}/g,i=/^\s*([\w-]+)\s*:\s*[^;]+;/;return l.replace(e,(R,a,g)=>{let c=g.trim().split(`
+`.trim():$.trim()},"wrapLooseRulesOutsideMediaQuery"),w=l(({style:n,selector:r})=>{let t=/@media\s*([^{]+)\s*\{([\s\S]*?)\}/g,i=/^\s*([\w-]+)\s*:\s*[^;]+;/;return n.replace(t,(R,a,g)=>{let c=g.trim().split(`
 `).map(o=>o.trim()).filter(o=>o).filter(o=>i.test(o)).map(o=>`${r} {
 ${o.trim()}
 }`).join(`
 `);return`@media ${a.trim()} {
 ${c}
-}`})},"wrapLooseRulesInsideMediaQuery"),w=n(({style:l,selector:r})=>{let e=/\.(\w+)/g;return l.replace(e,`.${r}_$1`)},"applyClassNameScope"),k=n((l,r)=>{let e=l,i=`.${r}`;return e=w({style:e,selector:r}),e=P({style:e,selector:i}),e=S({style:e,selector:i}),e},"transformStyle");export{k as transformStyle};
+}`})},"wrapLooseRulesInsideMediaQuery"),f=l(({style:n,selector:r})=>{let t=/\.(\w+)/g;return n.replace(t,`.${r}_$1`)},"applyClassNameScope"),k=l((n,r)=>{let t=n,i=`.${r}`;return t=f({style:t,selector:r}),t=S({style:t,selector:i}),t=w({style:t,selector:i}),t},"transformStyle");export{k as transformStyle};
 //# sourceMappingURL=cssParser.js.map

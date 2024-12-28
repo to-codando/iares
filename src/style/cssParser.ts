@@ -1,18 +1,18 @@
-interface WrapStyleParams {
+type WrapStyleParams = {
   style: string;
   selector: string;
-}
+};
 
-interface Accumulator {
+type Accumulator = {
   insideBlock: number;
   globalRules: string;
   result: string;
-}
+};
 
-interface LineProcessing {
+type LineProcessing = {
   globalRules: string;
   result: string;
-}
+};
 
 const wrapLooseRulesOutsideMediaQuery = ({
   style,

@@ -1,6 +1,6 @@
 {
   "name": "iares",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Rodrigo Rocha",
   "license": "ISC",
   "dependencies": {
     "htm": "^3.1.1"
