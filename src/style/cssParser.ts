@@ -118,7 +118,7 @@ const wrapLooseRulesInsideMediaQuery = ({
 };
 
 const applyClassNameScope = ({ style, selector }: WrapStyleParams): string => {
-  const regex = /\.(\w+)/g;
+  const regex = /\.(?<![\d])(?![\d])([\w-]+)/g;
   return style.replace(regex, `.${selector}_$1`);
 };
 
