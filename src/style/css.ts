@@ -13,33 +13,46 @@ type Handler = (payload: HandlerParams) => void;
 const cssCache: Map<string, string> = new Map();
 
 export const css =
-  (selector: string, handler: Handler = () => {}): TaggedStyle =>
-  (
-    strings: TemplateStringsArray,
-    ...interpolations: (string | number)[]
-  ): string => {
-    const rawCSS = strings.reduce(
-      (accumulator, str, index) =>
-        `${accumulator}${str}${interpolations[index] !== undefined ? interpolations[index] : ""}`,
-      "",
-    );
+  (selector: string, handler: Handler = () => { }): TaggedStyle =>
+    (
+      strings: TemplateStringsArray,
+      ...interpolations: (string | number)[]
+    ): string => {
+      const rawCSS = strings.reduce(
+        (accumulator, str, index) =>
+          `${accumulator}${str}${interpolations[index] !== undefined ? interpolations[index] : ""}`,
+        "",
+      );
 
-    const cachedClassName = cssCache.get(rawCSS);
-    if (cachedClassName !== undefined) {
-      return cachedClassName;
-    }
+      const cachedClassName = cssCache.get(rawCSS);
+      if (cachedClassName !== undefined) {
+        // Verifica se o elemento style existe no DOM
+        const existingStyle = document.head.querySelector(
+          `[data-component="${cachedClassName}"]`,
+        );
 
-    const hashId = createHash(rawCSS, selector);
-    const scopedStyle = transformStyle(rawCSS, `${hashId}`);
-    const styleElement = createStyleElement(`${hashId}`);
+        // Se não existir, recria o elemento style
+        if (!existingStyle) {
+          const scopedStyle = transformStyle(rawCSS, cachedClassName);
+          const styleElement = createStyleElement(cachedClassName);
+          styleElement.innerHTML += scopedStyle;
+          handler({ hashId: cachedClassName, scopedStyle, styleElement });
+        }
 
-    handler({ hashId, scopedStyle, styleElement });
+        return cachedClassName;
+      }
 
-    if (!styleElement.innerHTML.includes(scopedStyle)) {
-      styleElement.innerHTML += scopedStyle;
-    }
+      const hashId = createHash(rawCSS, selector);
+      const scopedStyle = transformStyle(rawCSS, hashId);
+      const styleElement = createStyleElement(hashId);
 
-    cssCache.set(rawCSS, hashId);
+      handler({ hashId, scopedStyle, styleElement });
 
-    return hashId;
-  };
+      if (!styleElement.innerHTML.includes(scopedStyle)) {
+        styleElement.innerHTML += scopedStyle;
+      }
+
+      cssCache.set(rawCSS, hashId);
+
+      return hashId;
+    };

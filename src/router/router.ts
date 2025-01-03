@@ -15,11 +15,47 @@ export const router: Router = ({ routes, context }) => {
     }
   };
 
+  const cleanupStyles = async (selector: string) => {
+    if (!selector) return;
+
+    const styleElement = document.head.querySelector(
+      `[data-component=${selector}]`,
+    );
+    if (styleElement) {
+      styleElement.remove();
+    }
+  };
+
+  const cleanupDOM = async () => {
+    _routerElement.replaceChildren();
+  };
+
+  const getChildSelector = (): string => {
+    const child = _routerElement.firstElementChild;
+    const selector = child ? Object.values(child.classList).shift() : "";
+    return selector as string;
+  };
+
+  const cleanupCurrentRoute = async () => {
+    try {
+      const selector = getChildSelector();
+      await cleanupStyles(selector);
+      await cleanupDOM();
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  };
+
   const _bindListeners = () => {
-    window.addEventListener("hashchange", () => {
-      //const payload: RouterObject = { status: true };
-      //eventDrive.emit("ON-DESTROY", payload);
-      _mountRouteByHash(null);
+    window.addEventListener("hashchange", async () => {
+      try {
+        await cleanupCurrentRoute();
+        await _mountRouteByHash(null);
+      } catch (error) {
+        console.error("Error during route change:", error);
+        // Aqui você pode adicionar lógica de fallback ou recuperação de erro
+      }
     });
   };
 
