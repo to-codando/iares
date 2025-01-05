@@ -1,32 +1,32 @@
 {
-  "name": "iares",
-  "version": "3.0.1",
-  "description": "",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
-  "scripts": {
-    "dev": "cross-env NODE_ENV=development && pnpm app:build && pnpm app:watch",
-    "prod": "cross-env NODE_ENV=production && pnpm app:build",
-    "app:build": "tsc --emitDeclarationOnly && bun build.config.ts",
-    "app:watch": "run-when-changed --watch './src/**' --exec 'pnpm app:build'",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Rodrigo Rocha",
-  "license": "ISC",
-  "dependencies": {
-    "htm": "^3.1.1"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.1.13",
-    "@types/jsdom": "^21.1.7",
-    "bun": "^1.1.36",
-    "concurrently": "^9.1.0",
-    "cross-env": "^7.0.3",
-    "dotenv": "^16.4.5",
-    "global-jsdom": "^25.0.0",
-    "jsdom": "^25.0.1",
-    "run-when-changed": "^2.1.0",
-    "typescript": "^5.6.3"
-  }
+	"name": "iares",
+	"version": "3.0.2",
+	"description": "",
+	"main": "dist/src/index.js",
+	"types": "dist/src/index.d.ts",
+	"scripts": {
+		"dev": "cross-env NODE_ENV=development && pnpm app:build && pnpm app:watch",
+		"prod": "cross-env NODE_ENV=production && pnpm app:build",
+		"app:build": "tsc --emitDeclarationOnly && bun build.config.ts",
+		"app:watch": "run-when-changed --watch './src/**' --exec 'pnpm app:build'",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "Rodrigo Rocha",
+	"license": "ISC",
+	"dependencies": {
+		"htm": "^3.1.1"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.1.13",
+		"@types/jsdom": "^21.1.7",
+		"bun": "^1.1.36",
+		"concurrently": "^9.1.0",
+		"cross-env": "^7.0.3",
+		"dotenv": "^16.4.5",
+		"global-jsdom": "^25.0.0",
+		"jsdom": "^25.0.1",
+		"run-when-changed": "^2.1.0",
+		"typescript": "^5.6.3"
+	}
 }
